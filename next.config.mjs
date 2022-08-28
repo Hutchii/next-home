@@ -8,12 +8,13 @@
  * @param {T} config - A generic parameter that flows through to the return type
  * @constraint {{import('next').NextConfig}}
  */
+
 function defineNextConfig(config) {
   return config;
 }
 
 export default defineNextConfig({
-  reactStrictMode: true,
+  // reactStrictMode: true,
   swcMinify: true,
   webpack(config) {
     config.module.rules.push({
@@ -30,3 +31,4 @@ export default defineNextConfig({
     newNextLinkBehavior: true
   },
 });
+

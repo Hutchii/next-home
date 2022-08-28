@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Image from "next/future/image";
 import Head from "next/head";
+import Listings from "../components/Listings";
 // import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
@@ -16,7 +17,7 @@ const Home: NextPage = () => {
           <Image
             src="/img/home-main.jpg"
             width={960}
-            height={720}
+            height={640}
             alt="House"
             className="h-[680px] w-full object-cover lg:h-auto lg:max-h-[640px]"
           />
@@ -33,6 +34,7 @@ const Home: NextPage = () => {
           </p>
         </div>
       </main>
+      <Listings />
     </>
   );
 };

@@ -20,10 +20,10 @@ body {
     @apply border-blue-300/10;
   }
   .btn-primary {
-    @apply flex h-10 items-center gap-2.5 rounded-2xl bg-blue-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#086AFF];
+    @apply flex h-10 items-center gap-2.5 rounded-full bg-blue-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#086AFF];
   }
   .btn-tertiary {
-    @apply flex h-10 items-center gap-2.5 rounded-2xl bg-red-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#F2075C];
+    @apply flex h-10 items-center gap-2.5 rounded-full bg-red-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#F2075C];
   }
 }
 
