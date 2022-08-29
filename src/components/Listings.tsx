@@ -11,92 +11,40 @@ import Home from "../../public/svg/home.svg";
 import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
+import { useController, UseControllerProps, useForm } from "react-hook-form";
+
+type Options = {
+  id: number;
+  name: string;
+};
 
 interface SelectProps {
-  options: typeof forOptions;
-  label: string;
+  options: Options[];
+  name: string;
   children: React.ReactElement;
 }
 
-const SelectMultiple = forwardRef<HTMLButtonElement, SelectProps>(
-  (props, ref) => {
-    const [selected, setSelected] = useState([
-      props.options[0],
-      props.options[1],
-    ]);
-    const selectedItems = selected.map((item) => item?.name).join(", ");
-    return (
-      <Listbox
-        as="div"
-        className="relative w-full flex-[1_1_300px]"
-        value={selected}
-        onChange={setSelected}
-        multiple
-      >
-        <Listbox.Button
-          ref={ref}
-          value={selectedItems}
-          className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs"
-        >
-          {props.children}
-          <span className="text-grey-500">{props.label}&nbsp;</span>
-          <span className="pr-4 font-medium text-blue-800">
-            {selectedItems.length === 0
-              ? "Please select options"
-              : selectedItems}
-          </span>
-          <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
-        </Listbox.Button>
-        <Listbox.Options className="absolute z-10 mt-1 w-full rounded-2xl border border-blue-300 bg-[#FBFCFF] text-xs">
-          {props.options.map((item) => (
-            <Listbox.Option
-              key={item.id}
-              className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl hover:bg-blue-100"
-              value={item}
-            >
-              {({ selected }) => (
-                <span
-                  className={`block pl-11 ${
-                    selected ? "font-medium" : "font-normal"
-                  }`}
-                >
-                  {selected ? (
-                    <Check
-                      aria-hidden="true"
-                      className="absolute left-0 top-1/2 mr-2 ml-4 -translate-y-1/2"
-                    />
-                  ) : null}
-                  {item.name}
-                </span>
-              )}
-            </Listbox.Option>
-          ))}
-        </Listbox.Options>
-      </Listbox>
-    );
-  }
-);
+const SelectMultiple = (props: SelectProps & UseControllerProps) => {
+  const {
+    field: { value, onChange, name },
+  } = useController(props);
 
-SelectMultiple.displayName = "SelectMultiple";
+  const shownValues = value?.map((item: Options) => item.name).join(", ");
 
-const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
-  const [selected, setSelected] = useState({ id: 0, name: "" });
   return (
     <Listbox
       as="div"
       className="relative w-full flex-[1_1_300px]"
-      value={selected}
-      onChange={setSelected}
+      name={name}
+      value={value}
+      onChange={onChange}
+      multiple
     >
-      <Listbox.Button
-        ref={ref}
-        value={selected.name ? selected.name : ""}
-        className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs"
-      >
+      <Listbox.Button className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs">
         {props.children}
-        <span className="text-grey-500">{props.label}&nbsp;</span>
+        <span className="text-grey-500">{props.name}&nbsp;</span>
         <span className="pr-4 font-medium text-blue-800">
-          {selected.name ? selected.name : "Select an option"}
+          {shownValues ? shownValues : "Select an option"}
         </span>
         <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
       </Listbox.Button>
@@ -104,7 +52,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
         {props.options.map((item) => (
           <Listbox.Option
             key={item.id}
-            className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl  hover:bg-blue-100"
+            className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl hover:bg-blue-100"
             value={item}
           >
             {({ selected }) => (
@@ -127,9 +75,59 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
       </Listbox.Options>
     </Listbox>
   );
-});
+};
 
-Select.displayName = "Select";
+SelectMultiple.displayName = "SelectMultiple";
+
+const Select = (props: SelectProps & UseControllerProps) => {
+  const {
+    field: { value, onChange, name },
+  } = useController(props);
+
+  return (
+    <Listbox
+      as="div"
+      className="relative w-full flex-[1_1_300px]"
+      value={value}
+      onChange={onChange}
+      name={name}
+    >
+      <Listbox.Button className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs">
+        {props.children}
+        <span className="text-grey-500">{props.name}&nbsp;</span>
+        <span className="pr-4 font-medium text-blue-800">
+          {value ? value.name : "Select an option"}
+        </span>
+        <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
+      </Listbox.Button>
+      <Listbox.Options className="absolute z-10 mt-1 w-full rounded-2xl border border-blue-300 bg-[#FBFCFF] text-xs">
+        {props.options.map((item) => (
+          <Listbox.Option
+            key={item.id}
+            className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl  hover:bg-blue-100"
+            value={item}
+          >
+            <span
+              className={`block pl-11 ${
+                item.name === (value as Options)?.name
+                  ? "font-medium"
+                  : "font-normal"
+              }`}
+            >
+              {item.name === (value as Options)?.name ? (
+                <Check
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 mr-2 ml-4 -translate-y-1/2"
+                />
+              ) : null}
+              {item.name}
+            </span>
+          </Listbox.Option>
+        ))}
+      </Listbox.Options>
+    </Listbox>
+  );
+};
 
 const Input = forwardRef<
   HTMLInputElement,
@@ -151,29 +149,54 @@ const Input = forwardRef<
 Input.displayName = "Input";
 
 const Listings = () => {
-  const [data, setData] = useState(false);
-  const forRef = useRef(null);
-  const typeRef = useRef(null);
-  const cityRef = useRef(null);
+  // const [data, setData] = useState(false);
+  // const forRef = useRef(null);
+  // const typeRef = useRef(null);
+  // const cityRef = useRef(null);
+
+  const { handleSubmit, control, reset } = useForm();
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+  });
 
   // const { data: someData, refetch } = trpc.useQuery([
   //   "estates.show-estates",
   //   data,
   // ]);
+  console.log("Render");
   return (
     <section>
-      <div className="spacer relative z-20 -mt-20 space-y-2.5 rounded-3xl bg-white py-10 shadow-big">
+      <form
+        onSubmit={onSubmit}
+        className="spacer relative z-20 -mt-20 space-y-2.5 rounded-3xl bg-white py-10 shadow-big"
+      >
         <p className="mb-5 text-center text-sm font-semibold text-blue-800">
           Search by applying filters:
         </p>
         <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
-          <SelectMultiple ref={forRef} options={forOptions} label="For">
+          <SelectMultiple
+            options={forOptions}
+            name="For"
+            control={control}
+            defaultValue={[]}
+          >
             <Tag className="mr-2" aria-hidden="true" />
           </SelectMultiple>
-          <Select ref={typeRef} options={forOptions} label="Type">
+          <Select
+            options={forOptions}
+            control={control}
+            name="Type"
+            defaultValue=""
+          >
             <Home className="mr-2" aria-hidden="true" />
           </Select>
-          <Select ref={cityRef} options={forOptions} label="City">
+          <Select
+            options={forOptions}
+            control={control}
+            name="City"
+            defaultValue=""
+          >
             <Location className="mr-2" aria-hidden="true" />
           </Select>
         </div>
@@ -209,17 +232,23 @@ const Listings = () => {
             </Input>
           </div>
         </div>
-        <div className="flex gap-2.5 justify-center pt-2.5">
+        <div className="flex justify-center gap-2.5 pt-2.5">
           <button className="btn-primary">
             Apply
             <Check className="fill-white" />
           </button>
-          <button className="btn-secondary">
+          <button
+            className="btn-secondary"
+            // onClick={(e) => {
+            //   e.preventDefault();
+            //   e.target.reset();
+            // }}
+          >
             Clear
             <Clear />
           </button>
         </div>
-      </div>
+      </form>
     </section>
   );
 };
