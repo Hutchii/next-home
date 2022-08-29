@@ -14,7 +14,7 @@ function defineNextConfig(config) {
 }
 
 export default defineNextConfig({
-  // reactStrictMode: true,
+  reactStrictMode: true,
   swcMinify: true,
   webpack(config) {
     config.module.rules.push({
