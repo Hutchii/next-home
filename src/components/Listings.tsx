@@ -10,6 +10,7 @@ import Location from "../../public/svg/location.svg";
 import Home from "../../public/svg/home.svg";
 import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
+import Clear from "../../public/svg/x.svg";
 
 interface SelectProps {
   options: typeof forOptions;
@@ -135,7 +136,7 @@ const Input = forwardRef<
   { placeholder: string; children: React.ReactElement }
 >((props, ref) => {
   return (
-    <div className="relative">
+    <div className="relative flex-1">
       <input
         ref={ref}
         type="number"
@@ -165,7 +166,7 @@ const Listings = () => {
         <p className="mb-5 text-center text-sm font-semibold text-blue-800">
           Search by applying filters:
         </p>
-        <div className="space-y-2.5 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-2.5">
+        <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
           <SelectMultiple ref={forRef} options={forOptions} label="For">
             <Tag className="mr-2" aria-hidden="true" />
           </SelectMultiple>
@@ -176,7 +177,7 @@ const Listings = () => {
             <Location className="mr-2" aria-hidden="true" />
           </Select>
         </div>
-        <div className="space-y-2.5 sm:space-y-0 sm:flex sm:gap-2.5 sm:flex-wrap">
+        <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
           <div className="flex w-full flex-[1_1_320px] items-center gap-1">
             <Input placeholder="Min Price">
               <Price
@@ -208,8 +209,17 @@ const Listings = () => {
             </Input>
           </div>
         </div>
+        <div className="flex gap-2.5 justify-center pt-2.5">
+          <button className="btn-primary">
+            Apply
+            <Check className="fill-white" />
+          </button>
+          <button className="btn-secondary">
+            Clear
+            <Clear />
+          </button>
+        </div>
       </div>
-      <button onClick={() => setData((b) => !b)}>UDPATE STATE {data}</button>
     </section>
   );
 };

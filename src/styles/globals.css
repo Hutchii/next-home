@@ -22,6 +22,9 @@ body {
   .btn-primary {
     @apply flex h-10 items-center gap-2.5 rounded-full bg-blue-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#086AFF];
   }
+  .btn-secondary {
+    @apply flex h-10 items-center gap-2.5 rounded-full border border-blue-500 bg-white pl-7 pr-5 text-base text-blue-500 font-medium transition-colors duration-100 ease-in-out active:bg-[#EDF4FF];
+  }
   .btn-tertiary {
     @apply flex h-10 items-center gap-2.5 rounded-full bg-red-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#F2075C];
   }
