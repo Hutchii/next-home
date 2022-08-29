@@ -27,7 +27,7 @@ const SelectMultiple = forwardRef<HTMLButtonElement, SelectProps>(
     return (
       <Listbox
         as="div"
-        className="relative"
+        className="relative w-full flex-[1_1_300px]"
         value={selected}
         onChange={setSelected}
         multiple
@@ -39,7 +39,7 @@ const SelectMultiple = forwardRef<HTMLButtonElement, SelectProps>(
         >
           {props.children}
           <span className="text-grey-500">{props.label}&nbsp;</span>
-          <span className="pr-10 font-medium text-blue-800">
+          <span className="pr-4 font-medium text-blue-800">
             {selectedItems.length === 0
               ? "Please select options"
               : selectedItems}
@@ -50,12 +50,12 @@ const SelectMultiple = forwardRef<HTMLButtonElement, SelectProps>(
           {props.options.map((item) => (
             <Listbox.Option
               key={item.id}
-              className="relative cursor-pointer select-none py-2.5 hover:rounded-2xl hover:bg-blue-100"
+              className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl hover:bg-blue-100"
               value={item}
             >
               {({ selected }) => (
                 <span
-                  className={`pl-11 ${
+                  className={`block pl-11 ${
                     selected ? "font-medium" : "font-normal"
                   }`}
                 >
@@ -83,7 +83,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
   return (
     <Listbox
       as="div"
-      className="relative"
+      className="relative w-full flex-[1_1_300px]"
       value={selected}
       onChange={setSelected}
     >
@@ -94,7 +94,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
       >
         {props.children}
         <span className="text-grey-500">{props.label}&nbsp;</span>
-        <span className="pr-10 font-medium text-blue-800">
+        <span className="pr-4 font-medium text-blue-800">
           {selected.name ? selected.name : "Select an option"}
         </span>
         <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
@@ -103,12 +103,14 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
         {props.options.map((item) => (
           <Listbox.Option
             key={item.id}
-            className="relative cursor-pointer select-none py-2.5 hover:rounded-2xl hover:bg-blue-100"
+            className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl  hover:bg-blue-100"
             value={item}
           >
             {({ selected }) => (
               <span
-                className={`pl-11 ${selected ? "font-medium" : "font-normal"}`}
+                className={`block pl-11 ${
+                  selected ? "font-medium" : "font-normal"
+                }`}
               >
                 {selected ? (
                   <Check
@@ -135,9 +137,10 @@ const Input = forwardRef<
   return (
     <div className="relative">
       <input
+        ref={ref}
         type="number"
         placeholder={props.placeholder}
-        className="h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 text-xs font-medium text-blue-800 placeholder:text-xs placeholder:font-normal placeholder:text-grey-500"
+        className="h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 pr-4 text-xs font-medium text-blue-800 placeholder:text-xs placeholder:font-normal placeholder:text-grey-500"
       />
       {props.children}
     </div>
@@ -162,44 +165,48 @@ const Listings = () => {
         <p className="mb-5 text-center text-sm font-semibold text-blue-800">
           Search by applying filters:
         </p>
-        <SelectMultiple ref={forRef} options={forOptions} label="For">
-          <Tag className="mr-2" aria-hidden="true" />
-        </SelectMultiple>
-        <Select ref={typeRef} options={forOptions} label="Type">
-          <Home className="mr-2" aria-hidden="true" />
-        </Select>
-        <Select ref={cityRef} options={forOptions} label="City">
-          <Location className="mr-2" aria-hidden="true" />
-        </Select>
-        <div className="space-y-2.5">
-          <Input placeholder="Min Price">
-            <Price
-              className="absolute top-1/2 left-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-          </Input>
-          <span className="hidden">-</span>
-          <Input placeholder="Max Price">
-            <Price
-              className="absolute top-1/2 left-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-          </Input>
+        <div className="space-y-2.5 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-2.5">
+          <SelectMultiple ref={forRef} options={forOptions} label="For">
+            <Tag className="mr-2" aria-hidden="true" />
+          </SelectMultiple>
+          <Select ref={typeRef} options={forOptions} label="Type">
+            <Home className="mr-2" aria-hidden="true" />
+          </Select>
+          <Select ref={cityRef} options={forOptions} label="City">
+            <Location className="mr-2" aria-hidden="true" />
+          </Select>
         </div>
-        <div className="space-y-2.5">
-          <Input placeholder="Min Area">
-            <Area
-              className="absolute top-1/2 left-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-          </Input>
-          <span className="hidden">-</span>
-          <Input placeholder="Max Area">
-            <Area
-              className="absolute top-1/2 left-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-          </Input>
+        <div className="space-y-2.5 sm:space-y-0 sm:flex sm:gap-2.5 sm:flex-wrap">
+          <div className="flex w-full flex-[1_1_320px] items-center gap-1">
+            <Input placeholder="Min Price">
+              <Price
+                className="absolute top-1/2 left-4 -translate-y-1/2"
+                aria-hidden="true"
+              />
+            </Input>
+            <span className="text-grey-500">-</span>
+            <Input placeholder="Max Price">
+              <Price
+                className="absolute top-1/2 left-4 -translate-y-1/2"
+                aria-hidden="true"
+              />
+            </Input>
+          </div>
+          <div className="flex w-full flex-[1_1_320px] items-center gap-1">
+            <Input placeholder="Min Area">
+              <Area
+                className="absolute top-1/2 left-4 -translate-y-1/2"
+                aria-hidden="true"
+              />
+            </Input>
+            <span className="text-grey-500">-</span>
+            <Input placeholder="Max Area">
+              <Area
+                className="absolute top-1/2 left-4 -translate-y-1/2"
+                aria-hidden="true"
+              />
+            </Input>
+          </div>
         </div>
       </div>
       <button onClick={() => setData((b) => !b)}>UDPATE STATE {data}</button>
