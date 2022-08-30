@@ -10,18 +10,15 @@ export const estatesRouter = createRouter().query("show-estates", {
     maxPrice: z.string(),
     minArea: z.string(),
     maxArea: z.string(),
-    // sort: z.object({
-    //   value: z.string(),
-    //   order: z.string(),
-    // }),
-    // category: z.string(),
+    Sort: z.object({
+      value: z.string(),
+      order: z.string(),
+    }),
   }),
   async resolve({ ctx, input }) {
     const getAllEstates = await ctx.prisma.estate.findMany({
-      orderBy: { name: "desc" },
+      orderBy: { [input.Sort.value]: input.Sort.order },
       where: { type: { contains: input.Type } },
-      // orderBy: { [input.sort.value]: input.sort.order },
-      // where: { type: { contains: input.type.value } },
     });
     return getAllEstates;
   },
