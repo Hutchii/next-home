@@ -1,4 +1,4 @@
 export const forOptions = [
-  { id: 1, name: "Sale" },
-  { id: 2, name: "Rent" },
+  { id: 1, name: "apartments" },
+  { id: 2, name: "houses" },
 ];

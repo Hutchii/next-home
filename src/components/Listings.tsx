@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
 import { forOptions } from "../data/selectOptions";
@@ -12,6 +12,7 @@ import Home from "../../public/svg/home.svg";
 import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
+import Image from "next/image";
 
 type Options = {
   id: number;
@@ -53,7 +54,7 @@ const SelectMultiple = (props: SelectProps & UseControllerProps) => {
           <Listbox.Option
             key={item.id}
             className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl hover:bg-blue-100"
-            value={item}
+            value={item.name}
           >
             {({ selected }) => (
               <span
@@ -103,7 +104,7 @@ const Select = (props: SelectProps & UseControllerProps) => {
           <Listbox.Option
             key={item.id}
             className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl  hover:bg-blue-100"
-            value={item}
+            value={item.name}
           >
             <span
               className={`block pl-11 ${
@@ -149,96 +150,160 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
+type FormValues = {
+  City: string;
+  For: string[];
+  Type: string;
+  maxArea: string;
+  maxPrice: string;
+  minArea: string;
+  minPrice: string;
+}[];
+
+const Items = ({ data, isLoading }) => {
+  return (
+    <section className="sm:spacer grid-container mt-20">
+      {!isLoading &&
+        data &&
+        data.map((item) => (
+          <div className="rounded-3xl bg-white shadow-small" key={item.id}>
+            <Image
+              className="rounded-t-3xl"
+              src="/img/home.jpg"
+              alt="Estate"
+              width={484}
+              height={280}
+            />
+            <div className="space-y-1.5 px-6 py-4">
+              <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
+                {item.type}
+                <span className="h-1.5 w-1.5 rounded-full bg-grey-500"></span>
+                {item.for}
+              </p>
+              <p className="text-md font-semibold text-blue-800/90">
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EUR",
+                }).format(+item.price)}
+              </p>
+              <p className="text-sm tracking-tight text-blue-800/80">
+                {item.address}
+              </p>
+            </div>
+          </div>
+        ))}
+    </section>
+  );
+};
+
 const Listings = () => {
+  const [formData, setFormData] = useState({
+    City: "",
+    For: [],
+    Type: "",
+    maxArea: "",
+    maxPrice: "",
+    minArea: "",
+    minPrice: "",
+  });
+  const { data, isLoading } = trpc.useQuery(
+    ["estates.show-estates", formData],
+    {
+      refetchInterval: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    }
+  );
   const { handleSubmit, control, register } = useForm();
 
   const onSubmit = handleSubmit((data) => {
+    setFormData(data);
     console.log(data);
   });
-
-  // const { data: someData, refetch } = trpc.useQuery([
-  //   "estates.show-estates",
-  //   data,
-  // ]);
+  console.log(data);
   return (
-    <section>
-      <form
-        onSubmit={onSubmit}
-        className="spacer relative z-20 -mt-20 space-y-2.5 rounded-3xl bg-white py-10 shadow-big"
-      >
-        <p className="mb-5 text-center text-sm font-semibold text-blue-800">
-          Search by applying filters:
-        </p>
-        <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
-          <SelectMultiple
-            options={forOptions}
-            name="For"
-            control={control}
-            defaultValue={[]}
-          >
-            <Tag className="mr-2" aria-hidden="true" />
-          </SelectMultiple>
-          <Select
-            options={forOptions}
-            control={control}
-            name="Type"
-            defaultValue=""
-          >
-            <Home className="mr-2" aria-hidden="true" />
-          </Select>
-          <Select
-            options={forOptions}
-            control={control}
-            name="City"
-            defaultValue=""
-          >
-            <Location className="mr-2" aria-hidden="true" />
-          </Select>
-        </div>
-        <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
-          <div className="flex w-full flex-[1_1_320px] items-center gap-1">
-            <Input placeholder="Min Price" {...register("minPrice")}>
-              <Price
-                className="absolute top-1/2 left-4 -translate-y-1/2"
-                aria-hidden="true"
-              />
-            </Input>
-            <span className="text-grey-500">-</span>
-            <Input placeholder="Max Price" {...register("maxPrice")}>
-              <Price
-                className="absolute top-1/2 left-4 -translate-y-1/2"
-                aria-hidden="true"
-              />
-            </Input>
+    <>
+      <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
+        <form
+          onSubmit={onSubmit}
+          className="relative z-20 space-y-2.5 rounded-3xl bg-white px-6 py-10 shadow-big sm:px-10"
+        >
+          <p className="mb-5 text-center text-sm font-semibold text-blue-800">
+            Search by applying filters:
+          </p>
+          <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
+            <SelectMultiple
+              options={forOptions}
+              name="For"
+              control={control}
+              defaultValue={[]}
+            >
+              <Tag className="mr-2" aria-hidden="true" />
+            </SelectMultiple>
+            <Select
+              options={forOptions}
+              control={control}
+              name="Type"
+              defaultValue=""
+            >
+              <Home className="mr-2" aria-hidden="true" />
+            </Select>
+            <Select
+              options={forOptions}
+              control={control}
+              name="City"
+              defaultValue=""
+            >
+              <Location className="mr-2" aria-hidden="true" />
+            </Select>
           </div>
-          <div className="flex w-full flex-[1_1_320px] items-center gap-1">
-            <Input placeholder="Min Area" {...register("minArea")}>
-              <Area
-                className="absolute top-1/2 left-4 -translate-y-1/2"
-                aria-hidden="true"
-              />
-            </Input>
-            <span className="text-grey-500">-</span>
-            <Input placeholder="Max Area" {...register("maxArea")}>
-              <Area
-                className="absolute top-1/2 left-4 -translate-y-1/2"
-                aria-hidden="true"
-              />
-            </Input>
+          <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
+            <div className="flex w-full flex-[1_1_320px] items-center gap-1">
+              <Input placeholder="Min Price" {...register("minPrice")}>
+                <Price
+                  className="absolute top-1/2 left-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
+              </Input>
+              <span className="text-grey-500">-</span>
+              <Input placeholder="Max Price" {...register("maxPrice")}>
+                <Price
+                  className="absolute top-1/2 left-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
+              </Input>
+            </div>
+            <div className="flex w-full flex-[1_1_320px] items-center gap-1">
+              <Input placeholder="Min Area" {...register("minArea")}>
+                <Area
+                  className="absolute top-1/2 left-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
+              </Input>
+              <span className="text-grey-500">-</span>
+              <Input placeholder="Max Area" {...register("maxArea")}>
+                <Area
+                  className="absolute top-1/2 left-4 -translate-y-1/2"
+                  aria-hidden="true"
+                />
+              </Input>
+            </div>
           </div>
-        </div>
-        <div className="flex justify-center gap-2.5 pt-2.5">
-          <button className="btn-primary">
-            Apply
-            <Check className="fill-white" />
-          </button>
-          <button className="btn-secondary">
-            Clear
-            <Clear />
-          </button>
-        </div>
-      </form>
-    </section>
+          <div className="flex justify-center gap-2.5 pt-2.5">
+            <button className="btn-primary">
+              Apply
+              <Check className="fill-white" />
+            </button>
+            <button className="btn-secondary">
+              Clear
+              <Clear />
+            </button>
+          </div>
+        </form>
+      </section>
+      <Items data={data} isLoading={isLoading} />
+    </>
   );
 };
 
