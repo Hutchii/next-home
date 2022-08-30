@@ -1,7 +1,8 @@
-import React, { useState, useRef, forwardRef } from "react";
+import React from "react";
 import { trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
 import { forOptions } from "../data/selectOptions";
+import { useController, UseControllerProps, useForm } from "react-hook-form";
 
 import Tag from "../../public/svg/tag.svg";
 import DropdownArrow from "../../public/svg/dropdownArrow.svg";
@@ -11,18 +12,17 @@ import Home from "../../public/svg/home.svg";
 import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
-import { useController, UseControllerProps, useForm } from "react-hook-form";
 
 type Options = {
   id: number;
   name: string;
 };
 
-interface SelectProps {
+type SelectProps = {
   options: Options[];
   name: string;
   children: React.ReactElement;
-}
+};
 
 const SelectMultiple = (props: SelectProps & UseControllerProps) => {
   const {
@@ -77,8 +77,6 @@ const SelectMultiple = (props: SelectProps & UseControllerProps) => {
   );
 };
 
-SelectMultiple.displayName = "SelectMultiple";
-
 const Select = (props: SelectProps & UseControllerProps) => {
   const {
     field: { value, onChange, name },
@@ -129,32 +127,30 @@ const Select = (props: SelectProps & UseControllerProps) => {
   );
 };
 
-const Input = forwardRef<
-  HTMLInputElement,
-  { placeholder: string; children: React.ReactElement }
->((props, ref) => {
-  return (
+type InputProps = React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> & { placeholder: string; children: React.ReactElement };
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ placeholder, children, ...props }, ref) => (
     <div className="relative flex-1">
       <input
+        {...props}
         ref={ref}
         type="number"
-        placeholder={props.placeholder}
+        placeholder={placeholder}
         className="h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 pr-4 text-xs font-medium text-blue-800 placeholder:text-xs placeholder:font-normal placeholder:text-grey-500"
       />
-      {props.children}
+      {children}
     </div>
-  );
-});
+  )
+);
 
 Input.displayName = "Input";
 
 const Listings = () => {
-  // const [data, setData] = useState(false);
-  // const forRef = useRef(null);
-  // const typeRef = useRef(null);
-  // const cityRef = useRef(null);
-
-  const { handleSubmit, control, reset } = useForm();
+  const { handleSubmit, control, register } = useForm();
 
   const onSubmit = handleSubmit((data) => {
     console.log(data);
@@ -164,7 +160,6 @@ const Listings = () => {
   //   "estates.show-estates",
   //   data,
   // ]);
-  console.log("Render");
   return (
     <section>
       <form
@@ -202,14 +197,14 @@ const Listings = () => {
         </div>
         <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
           <div className="flex w-full flex-[1_1_320px] items-center gap-1">
-            <Input placeholder="Min Price">
+            <Input placeholder="Min Price" {...register("minPrice")}>
               <Price
                 className="absolute top-1/2 left-4 -translate-y-1/2"
                 aria-hidden="true"
               />
             </Input>
             <span className="text-grey-500">-</span>
-            <Input placeholder="Max Price">
+            <Input placeholder="Max Price" {...register("maxPrice")}>
               <Price
                 className="absolute top-1/2 left-4 -translate-y-1/2"
                 aria-hidden="true"
@@ -217,14 +212,14 @@ const Listings = () => {
             </Input>
           </div>
           <div className="flex w-full flex-[1_1_320px] items-center gap-1">
-            <Input placeholder="Min Area">
+            <Input placeholder="Min Area" {...register("minArea")}>
               <Area
                 className="absolute top-1/2 left-4 -translate-y-1/2"
                 aria-hidden="true"
               />
             </Input>
             <span className="text-grey-500">-</span>
-            <Input placeholder="Max Area">
+            <Input placeholder="Max Area" {...register("maxArea")}>
               <Area
                 className="absolute top-1/2 left-4 -translate-y-1/2"
                 aria-hidden="true"
@@ -237,13 +232,7 @@ const Listings = () => {
             Apply
             <Check className="fill-white" />
           </button>
-          <button
-            className="btn-secondary"
-            // onClick={(e) => {
-            //   e.preventDefault();
-            //   e.target.reset();
-            // }}
-          >
+          <button className="btn-secondary">
             Clear
             <Clear />
           </button>
