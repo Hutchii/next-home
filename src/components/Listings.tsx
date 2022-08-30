@@ -28,7 +28,11 @@ const Select = (props: SelectProps) => {
   return (
     <Listbox
       as="div"
-      className="relative w-full flex-[1_1_300px]"
+      className={`relative ${
+        props.valueIsObject
+          ? "w-full md:w-80"
+          : "relative w-full flex-[1_1_300px]"
+      }`}
       value={props.value}
       onChange={props.onChange}
       name={props.name}
@@ -204,7 +208,7 @@ const Listings = () => {
       refetchOnMount: false,
     }
   );
-  const { handleSubmit, control, register } = useForm();
+  const { handleSubmit, control, register, reset } = useForm();
 
   const onSubmit = handleSubmit((data) => {
     setFormData({
@@ -307,7 +311,11 @@ const Listings = () => {
               Apply
               <Check className="fill-white" />
             </button>
-            <button className="btn-secondary">
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={() => reset()}
+            >
               Clear
               <Clear />
             </button>
