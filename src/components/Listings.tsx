@@ -174,7 +174,7 @@ const Items = ({ data, isLoading }) => {
               width={484}
               height={280}
             />
-            <div className="space-y-1.5 px-6 py-4">
+            <div className="flex flex-col gap-1.5 px-6 pt-4 pb-8 sm:px-8">
               <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
                 {item.type}
                 <span className="h-1.5 w-1.5 rounded-full bg-grey-500"></span>
@@ -189,6 +189,32 @@ const Items = ({ data, isLoading }) => {
               <p className="text-sm tracking-tight text-blue-800/80">
                 {item.address}
               </p>
+              <div className="flex gap-5 pt-2.5">
+                <div className="flex items-center gap-1">
+                  <Area className="mt-[1px]" />
+                  <p className="text-xs text-grey-500">{item.area}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Area className="mt-[1px]" />
+                  <p className="text-xs text-grey-500">{item.rooms} rooms</p>
+                </div>
+              </div>
+              <div className="my-4 h-[1px] w-full bg-blue-800/[0.12]" />
+              <div className="flex gap-3 items-center">
+                <div>
+                  <Image
+                    className="rounded-full"
+                    src="/img/avatar.jpg"
+                    alt="Estate"
+                    width={46}
+                    height={46}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs text-blue-800">Andrzej Kowalski</p>
+                  <p className="text-xs text-grey-500">+48 111 222 333</p>
+                </div>
+              </div>
             </div>
           </div>
         ))}
