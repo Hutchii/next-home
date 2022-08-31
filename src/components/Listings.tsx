@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { inferQueryOutput, trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
 import {
+  cityOptions,
   forOptions,
   Options,
   OptionsSort,
   sortOptions,
+  typeOptions,
 } from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
 
@@ -35,7 +37,6 @@ const Select = ({
   value: any;
 }) => {
   const isValueObject = typeof value === "object" && !Array.isArray(value);
-  console.log("Render", value);
   return (
     <Listbox
       as="div"
@@ -158,7 +159,7 @@ const Items = ({
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
                     currency: "EUR",
-                  }).format(+item.price)}
+                  }).format(item.price)}
                 </p>
                 <p className="text-sm tracking-tight text-blue-800/80">
                   {item.address}
@@ -197,17 +198,19 @@ const Items = ({
   );
 };
 
+const formInitialData = {
+  City: "",
+  For: ["Sell", "Rent"],
+  Type: "",
+  Sort: { name: "Largest Price", value: "price", order: "desc" },
+  maxArea: "",
+  maxPrice: "",
+  minArea: "",
+  minPrice: "",
+};
+
 const Listings = () => {
-  const [formData, setFormData] = useState({
-    City: "",
-    For: ["Sell", "Rent"],
-    Type: "",
-    Sort: { name: "Largest Price", value: "price", order: "desc" },
-    maxArea: "",
-    maxPrice: "",
-    minArea: "",
-    minPrice: "",
-  });
+  const [formData, setFormData] = useState(formInitialData);
   const { data, isLoading } = trpc.useQuery(
     ["estates.show-estates", formData],
     {
@@ -217,7 +220,8 @@ const Listings = () => {
       refetchOnMount: false,
     }
   );
-  const { handleSubmit, control, register, reset } = useForm<typeof formData>();
+  const { handleSubmit, control, register, reset } =
+    useForm<typeof formInitialData>();
 
   const onSubmit = handleSubmit((data) => {
     setFormData({
@@ -258,7 +262,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={forOptions}
+                  options={typeOptions}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -273,7 +277,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={forOptions}
+                  options={cityOptions}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -316,14 +320,17 @@ const Listings = () => {
             </div>
           </div>
           <div className="flex justify-center gap-2.5 pt-2.5">
-            <button className="btn-primary">
+            <button className="btn-primary" type="submit">
               Apply
               <Check className="fill-white" />
             </button>
             <button
               className="btn-secondary"
               type="button"
-              onClick={() => reset()}
+              onClick={() => {
+                reset();
+                setFormData(formInitialData);
+              }}
             >
               Clear
               <Clear />

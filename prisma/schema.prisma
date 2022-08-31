@@ -71,7 +71,7 @@ model Estate {
     type    String
     city    String
     address String
-    price   String
+    price   Int
     area    String
     rooms   Int
     body    String @db.Text
