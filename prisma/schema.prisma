@@ -72,7 +72,7 @@ model Estate {
     city    String
     address String
     price   Int
-    area    String
+    area    Float
     rooms   Int
     body    String @db.Text
     userId  String

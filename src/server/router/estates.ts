@@ -24,18 +24,16 @@ export const estatesRouter = createRouter().query("show-estates", {
     const getAllEstates = await ctx.prisma.estate.findMany({
       orderBy: { [input.Sort.value]: input.Sort.order },
       where: {
-        ...(input.Type !== "" ? { type: { contains: input.Type } } : {}),
-        ...(input.City !== "" ? { city: { contains: input.City } } : {}),
-        ...(input.minPrice !== "" ? { price: { gte: +input.minPrice} } : {}),
-        ...(input.maxPrice !== "" ? { price: { lte: +input.maxPrice} } : {}),
-        OR: [
-          For1 ? { for: { contains: For1 } } : {},
-          For2 ? { for: { contains: For2 } } : {},
+        type: { contains: input.Type },
+        city: { contains: input.City },
+        AND: [
+          input.minPrice !== "" ? { price: { gte: +input.minPrice } } : {},
+          input.maxPrice !== "" ? { price: { lte: +input.maxPrice } } : {},
+          input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
+          input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
         ],
       },
     });
     return getAllEstates;
   },
 });
-
-// ...(For1 ? { type: { contains: For1 } } : {}),
