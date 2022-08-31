@@ -237,9 +237,11 @@ const Listings = () => {
     setFormData({
       ...data,
       Sort: { name: "Largest Price", value: "price", order: "desc" },
+      skip: formData.skip,
+      take: formData.take,
     });
   });
-
+  console.log(formData);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
