@@ -124,16 +124,19 @@ const Items = ({
   data,
   isLoading,
   children,
+  count,
 }: {
-  data: ShowEstatesOutput | undefined;
+  data: ShowEstatesOutput[1] | undefined;
   isLoading: boolean;
   children: React.ReactElement;
+  count: ShowEstatesOutput[0] | undefined;
 }) => {
   return (
     <section>
       <div className="spacer mt-20 md:flex md:items-center md:justify-between">
         <p className="mb-2.5 text-sm text-blue-800 md:mb-0">
-          <span className="text-md font-medium text-blue-500">321</span> results
+          <span className="text-md font-medium text-blue-500">{count}</span>{" "}
+          results
         </p>
         {children}
       </div>
@@ -220,6 +223,8 @@ const Listings = () => {
       refetchOnMount: false,
     }
   );
+  const [estatesCount, estatesData] = data || [];
+
   const { handleSubmit, control, register, reset } =
     useForm<typeof formInitialData>();
 
@@ -338,7 +343,7 @@ const Listings = () => {
           </div>
         </form>
       </section>
-      <Items data={data} isLoading={isLoading}>
+      <Items data={estatesData} isLoading={isLoading} count={estatesCount}>
         <Select
           options={sortOptions}
           name="Sort"

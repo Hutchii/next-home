@@ -21,19 +21,33 @@ export const estatesRouter = createRouter().query("show-estates", {
       For1 = "Sell";
       For2 = "Rent";
     }
-    const getAllEstates = await ctx.prisma.estate.findMany({
-      orderBy: { [input.Sort.value]: input.Sort.order },
-      where: {
-        type: { contains: input.Type },
-        city: { contains: input.City },
-        AND: [
-          input.minPrice !== "" ? { price: { gte: +input.minPrice } } : {},
-          input.maxPrice !== "" ? { price: { lte: +input.maxPrice } } : {},
-          input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
-          input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
-        ],
-      },
-    });
-    return getAllEstates;
+    const getEstates = await ctx.prisma.$transaction([
+      ctx.prisma.estate.count({
+        where: {
+          type: { contains: input.Type },
+          city: { contains: input.City },
+          AND: [
+            input.minPrice !== "" ? { price: { gte: +input.minPrice } } : {},
+            input.maxPrice !== "" ? { price: { lte: +input.maxPrice } } : {},
+            input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
+            input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
+          ],
+        },
+      }),
+      ctx.prisma.estate.findMany({
+        orderBy: { [input.Sort.value]: input.Sort.order },
+        where: {
+          type: { contains: input.Type },
+          city: { contains: input.City },
+          AND: [
+            input.minPrice !== "" ? { price: { gte: +input.minPrice } } : {},
+            input.maxPrice !== "" ? { price: { lte: +input.maxPrice } } : {},
+            input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
+            input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
+          ],
+        },
+      }),
+    ]);
+    return getEstates;
   },
 });
