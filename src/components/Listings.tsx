@@ -10,6 +10,7 @@ import {
   typeOptions,
 } from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
+import Image from "next/future/image";
 
 import Tag from "../../public/svg/tag.svg";
 import DropdownArrow from "../../public/svg/dropdownArrow.svg";
@@ -19,7 +20,7 @@ import Home from "../../public/svg/home.svg";
 import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
-import Image from "next/future/image";
+import Door from "../../public/svg/door.svg";
 
 const Select = ({
   options,
@@ -173,7 +174,7 @@ const Items = ({
                     <p className="text-xs text-grey-500">{item.area} m²</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Area className="mt-[1px]" />
+                    <Door className="mt-[1px]" />
                     <p className="text-xs text-grey-500">{item.rooms} rooms</p>
                   </div>
                 </div>
