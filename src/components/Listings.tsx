@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { inferQueryOutput, trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
-import { forOptions, Options, sortOptions } from "../data/selectOptions";
+import {
+  forOptions,
+  Options,
+  OptionsSort,
+  sortOptions,
+} from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
 
 import Tag from "../../public/svg/tag.svg";
@@ -14,54 +19,58 @@ import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
 import Image from "next/future/image";
 
-type SelectProps = {
-  options: Options[];
+const Select = ({
+  options,
+  name,
+  children,
+  multiple,
+  onChange,
+  value,
+}: {
+  options: Options[] | OptionsSort[];
   name: string;
   children: React.ReactElement;
   multiple?: boolean;
-  valueIsObject?: boolean;
-  onChange: () => void;
-  value: string | { name: string; value: string; order: string };
-};
-
-const Select = (props: SelectProps) => {
+  onChange: (v: OptionsSort) => void;
+  value: any;
+}) => {
+  const isValueObject = typeof value === "object" && !Array.isArray(value);
+  console.log("Render", value);
   return (
     <Listbox
       as="div"
       className={`relative ${
-        props.valueIsObject
-          ? "w-full md:w-80"
-          : "relative w-full flex-[1_1_300px]"
+        isValueObject ? "md:w-80" : "sm:flex-[1_1_300px]"
       }`}
-      value={props.value}
-      onChange={props.onChange}
-      name={props.name}
-      multiple={props.multiple}
+      value={value}
+      onChange={onChange}
+      name={name}
+      multiple={multiple}
     >
       <Listbox.Button className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs">
-        {props.children}
-        <span className="text-grey-500">{props.name}&nbsp;</span>
+        {children}
+        <span className="text-grey-500">{name}&nbsp;</span>
         <span className="pr-4 font-medium text-blue-800">
-          {props.valueIsObject
-            ? props.value.name
-            : !props.value || props.value.length === 0
+          {isValueObject
+            ? value.name
+            : !value || value.length === 0
             ? "Select an option"
-            : props.multiple
-            ? props.value?.map((item: Options) => item).join(", ")
-            : props.value}
+            : multiple
+            ? value?.map((item: OptionsSort) => item).join(", ")
+            : value}
         </span>
         <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
       </Listbox.Button>
       <Listbox.Options className="absolute z-10 mt-1 w-full rounded-2xl border border-blue-300 bg-[#FBFCFF] text-xs">
-        {props.options.map((item) => (
+        {options.map((item) => (
           <Listbox.Option
             key={item.id}
             className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl  hover:bg-blue-100"
-            value={!props.valueIsObject ? item.name : item}
+            value={!isValueObject ? item.name : item}
           >
             {({ selected }) => {
-              const selectedCondition = props.valueIsObject
-                ? item.name === props.value.name
+              const selectedCondition = isValueObject
+                ? item.name === value.name
                 : selected;
               return (
                 <span
@@ -191,13 +200,13 @@ const Items = ({
 const Listings = () => {
   const [formData, setFormData] = useState({
     City: "",
-    For: [],
+    For: ["Sell", "Rent"],
     Type: "",
+    Sort: { name: "Largest Price", value: "price", order: "desc" },
     maxArea: "",
     maxPrice: "",
     minArea: "",
     minPrice: "",
-    Sort: { name: "Largest Price", value: "price", order: "desc" },
   });
   const { data, isLoading } = trpc.useQuery(
     ["estates.show-estates", formData],
@@ -208,7 +217,7 @@ const Listings = () => {
       refetchOnMount: false,
     }
   );
-  const { handleSubmit, control, register, reset } = useForm();
+  const { handleSubmit, control, register, reset } = useForm<typeof formData>();
 
   const onSubmit = handleSubmit((data) => {
     setFormData({
@@ -326,9 +335,8 @@ const Listings = () => {
         <Select
           options={sortOptions}
           name="Sort"
-          valueIsObject
           value={formData.Sort}
-          onChange={(v: any) =>
+          onChange={(v: OptionsSort) =>
             setFormData({
               ...formData,
               Sort: { ...v, value: v.value, order: v.order },
