@@ -14,6 +14,8 @@ export const estatesRouter = createRouter().query("show-estates", {
       value: z.string(),
       order: z.string(),
     }),
+    skip: z.number(),
+    take: z.number(),
   }),
   async resolve({ ctx, input }) {
     let [For1, For2] = input.For;
@@ -23,6 +25,8 @@ export const estatesRouter = createRouter().query("show-estates", {
     }
     const getEstates = await ctx.prisma.$transaction([
       ctx.prisma.estate.count({
+        skip: input.skip,
+        take: input.take,
         where: {
           type: { contains: input.Type },
           city: { contains: input.City },
@@ -35,6 +39,8 @@ export const estatesRouter = createRouter().query("show-estates", {
         },
       }),
       ctx.prisma.estate.findMany({
+        skip: input.skip,
+        take: input.take,
         orderBy: { [input.Sort.value]: input.Sort.order },
         where: {
           type: { contains: input.Type },
