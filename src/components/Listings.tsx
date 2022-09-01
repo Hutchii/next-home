@@ -305,14 +305,12 @@ const Listings = () => {
     });
   });
 
-  // const totalCount = filteredData?.length;
   const currentPage = formData.skip / TOTAL_ITEMS_PER_PAGE + 1;
   const pagination = usePagination({
-    totalCount: estatesCount,
+    totalCount: estatesCount || 0,
     pageSize: TOTAL_ITEMS_PER_PAGE,
     currentPage,
   });
-  // const lastPage = formData.skip === estatesCount - TOTAL_ITEMS_PER_PAGE;
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -450,7 +448,7 @@ const Listings = () => {
           onPageClick={(page: number) =>
             setFormData({ ...formData, skip: page })
           }
-          lastPage={formData.skip === estatesCount - 1}
+          lastPage={formData.skip === estatesCount! - 1}
           paginationRange={pagination}
           currentPage={currentPage}
         />
