@@ -11,6 +11,7 @@ import {
 } from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
 import Image from "next/future/image";
+import { usePagination } from "../hooks/usePagination";
 
 import Tag from "../../public/svg/tag.svg";
 import DropdownArrow from "../../public/svg/dropdownArrow.svg";
@@ -21,7 +22,7 @@ import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
 import Door from "../../public/svg/door.svg";
-import { usePagination } from "../hooks/usePagination";
+import Arrow from "../../public/svg/arrow.svg";
 
 const Select = ({
   options,
@@ -120,7 +121,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
-const TOTAL_ITEMS_PER_PAGE = 1;
+const TOTAL_ITEMS_PER_PAGE = 3;
 
 const Pagination = ({
   onArrowClick,
@@ -135,21 +136,20 @@ const Pagination = ({
   paginationRange: (number | string)[];
   currentPage: number;
 }) => {
-  console.log("Range", paginationRange);
   return (
-    <div className="mt-6 flex items-center justify-center gap-1 font-medium lg:mt-10">
+    <div className="mt-10 flex items-center justify-center gap-1.5 font-medium">
       <button
-        className="mr-2 text-2xl disabled:opacity-25"
+        className="pagination-arrow mr-1 disabled:opacity-40"
         onClick={() => onArrowClick(-TOTAL_ITEMS_PER_PAGE)}
         disabled={currentPage < 2}
       >
-        &#8592;
+        <Arrow className="fill-white" />
       </button>
       {paginationRange.map((pageNumber, i) => {
         if (typeof pageNumber === "string") {
           return (
             <div
-              className="pointer-events-none w-7 text-center text-xl"
+              className="pointer-events-none w-11 select-none text-center text-sm text-blue-500"
               key={pageNumber + i}
             >
               &#8230;
@@ -158,8 +158,9 @@ const Pagination = ({
         }
         return (
           <div
-            className={`w-7 cursor-pointer text-center text-xl ${
-              pageNumber === currentPage && "text-red-500"
+            className={`pagination-page cursor-pointer select-none ${
+              pageNumber === currentPage &&
+              "border-blue-800 bg-blue-800 text-white"
             }`}
             key={pageNumber}
             onClick={() =>
@@ -173,11 +174,11 @@ const Pagination = ({
         );
       })}
       <button
-        className="ml-2 text-2xl disabled:opacity-25"
+        className="pagination-arrow ml-1 disabled:opacity-40"
         onClick={() => onArrowClick(+TOTAL_ITEMS_PER_PAGE)}
         disabled={lastPage}
       >
-        &#8594;
+        <Arrow className="rotate-180 fill-white" />
       </button>
     </div>
   );

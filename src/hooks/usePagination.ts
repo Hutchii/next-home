@@ -19,14 +19,10 @@ export const usePagination = ({
   siblingCount?: number;
 }) => {
   const paginationRange = useMemo(() => {
-    //Calculate number of pages
     const totalPageCount = Math.ceil(totalCount / pageSize);
-    // Pages count is determined as siblingCount + firstPage + lastPage + currentPage + 2*DOTS
     const totalPageNumbers = siblingCount + 5;
 
     if (pageSize === 0) return null;
-
-    //If number of pages is less that the page numbers, return range
     if (totalPageNumbers >= totalPageCount) {
       return range(1, totalPageCount);
     }
@@ -36,11 +32,6 @@ export const usePagination = ({
       currentPage + siblingCount,
       totalPageCount
     );
-    /*
-      We do not want to show dots if there is only one position left 
-      after/before the left/right page count as that would lead to a change if our Pagination
-      component size which we do not want
-    */
     const shouldShowLeftDots = leftSiblingIndex > 2;
     const shouldShowRightDots = rightSiblingIndex < totalPageCount - 2;
 

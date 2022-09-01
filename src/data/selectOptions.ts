@@ -16,8 +16,9 @@ export const typeOptions = [
 ];
 
 export const cityOptions = [
-  { id: 1, name: "New York" },
-  { id: 2, name: "Arizona" },
+  { id: 1, name: "Arizona" },
+  { id: 2, name: "Los Angeles" },
+  { id: 3, name: "New York" },
 ];
 
 export const sortOptions = [

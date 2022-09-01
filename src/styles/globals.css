@@ -28,6 +28,12 @@ body {
   .btn-tertiary {
     @apply flex h-10 items-center gap-2.5 rounded-full bg-red-500 pl-7 pr-5 text-base text-white transition-colors duration-100 ease-in-out active:bg-[#F2075C];
   }
+  .pagination-arrow {
+    @apply flex h-10 w-12 items-center justify-center rounded-full bg-blue-500 transition-opacity duration-100 ease-in-out;
+  }
+  .pagination-page {
+    @apply flex h-10 w-11 items-center justify-center rounded-full border border-blue-500 bg-white text-base text-blue-500 transition-colors duration-100 ease-in-out;
+  }
 }
 
 @media (min-width: 1024px) {
