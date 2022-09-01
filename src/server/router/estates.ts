@@ -34,12 +34,15 @@ export const estatesRouter = createRouter().query("show-estates", {
             input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
             input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
           ],
+          OR: [
+            For1 ? { for: { contains: For1 } } : {},
+            For2 ? { for: { contains: For2 } } : {},
+          ],
         },
       }),
       ctx.prisma.estate.findMany({
         skip: input.skip,
         take: input.take,
-        orderBy: { [input.Sort.value]: input.Sort.order },
         where: {
           type: { contains: input.Type },
           city: { contains: input.City },
@@ -49,7 +52,12 @@ export const estatesRouter = createRouter().query("show-estates", {
             input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
             input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
           ],
+          OR: [
+            For1 ? { for: { contains: For1 } } : {},
+            For2 ? { for: { contains: For2 } } : {},
+          ],
         },
+        orderBy: { [input.Sort.value]: input.Sort.order },
       }),
     ]);
     return getEstates;
