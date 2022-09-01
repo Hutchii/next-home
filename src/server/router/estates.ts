@@ -25,8 +25,6 @@ export const estatesRouter = createRouter().query("show-estates", {
     }
     const getEstates = await ctx.prisma.$transaction([
       ctx.prisma.estate.count({
-        skip: input.skip,
-        take: input.take,
         where: {
           type: { contains: input.Type },
           city: { contains: input.City },

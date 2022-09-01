@@ -21,6 +21,7 @@ import Price from "../../public/svg/price.svg";
 import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
 import Door from "../../public/svg/door.svg";
+import { usePagination } from "../hooks/usePagination";
 
 const Select = ({
   options,
@@ -119,6 +120,69 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
+const TOTAL_ITEMS_PER_PAGE = 1;
+
+const Pagination = ({
+  onArrowClick,
+  onPageClick,
+  lastPage,
+  paginationRange,
+  currentPage,
+}: {
+  onArrowClick: (sign: number) => void;
+  onPageClick: (page: number) => void;
+  lastPage: boolean;
+  paginationRange: (number | string)[];
+  currentPage: number;
+}) => {
+  console.log("Range", paginationRange);
+  return (
+    <div className="mt-6 flex items-center justify-center gap-1 font-medium lg:mt-10">
+      <button
+        className="mr-2 text-2xl disabled:opacity-25"
+        onClick={() => onArrowClick(-TOTAL_ITEMS_PER_PAGE)}
+        disabled={currentPage < 2}
+      >
+        &#8592;
+      </button>
+      {paginationRange.map((pageNumber, i) => {
+        if (typeof pageNumber === "string") {
+          return (
+            <div
+              className="pointer-events-none w-7 text-center text-xl"
+              key={pageNumber + i}
+            >
+              &#8230;
+            </div>
+          );
+        }
+        return (
+          <div
+            className={`w-7 cursor-pointer text-center text-xl ${
+              pageNumber === currentPage && "text-red-500"
+            }`}
+            key={pageNumber}
+            onClick={() =>
+              onPageClick(
+                pageNumber * TOTAL_ITEMS_PER_PAGE - TOTAL_ITEMS_PER_PAGE
+              )
+            }
+          >
+            {pageNumber}
+          </div>
+        );
+      })}
+      <button
+        className="ml-2 text-2xl disabled:opacity-25"
+        onClick={() => onArrowClick(+TOTAL_ITEMS_PER_PAGE)}
+        disabled={lastPage}
+      >
+        &#8594;
+      </button>
+    </div>
+  );
+};
+
 type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
 
 const Items = ({
@@ -202,8 +266,6 @@ const Items = ({
   );
 };
 
-const TOTAL_ITEMS_PER_PAGE = 1;
-
 const formInitialData = {
   City: "",
   For: ["Sell", "Rent"],
@@ -237,11 +299,19 @@ const Listings = () => {
     setFormData({
       ...data,
       Sort: { name: "Largest Price", value: "price", order: "desc" },
-      skip: formData.skip,
-      take: formData.take,
+      skip: 0,
+      take: TOTAL_ITEMS_PER_PAGE,
     });
   });
-  console.log(formData);
+
+  // const totalCount = filteredData?.length;
+  const currentPage = formData.skip / TOTAL_ITEMS_PER_PAGE + 1;
+  const pagination = usePagination({
+    totalCount: estatesCount,
+    pageSize: TOTAL_ITEMS_PER_PAGE,
+    currentPage,
+  });
+  const lastPage = formData.skip === estatesCount - TOTAL_ITEMS_PER_PAGE;
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -360,12 +430,30 @@ const Listings = () => {
             setFormData({
               ...formData,
               Sort: { ...v, value: v.value, order: v.order },
+              skip: 0,
+              take: TOTAL_ITEMS_PER_PAGE,
             })
           }
         >
           <Home className="mr-2" aria-hidden="true" />
         </Select>
       </Items>
+      {!pagination || pagination.length < 2 ? null : (
+        <Pagination
+          onArrowClick={(sign = 0) =>
+            setFormData((s) => ({
+              ...formData,
+              skip: s.skip + sign,
+            }))
+          }
+          onPageClick={(page: number) =>
+            setFormData({ ...formData, skip: page })
+          }
+          lastPage={lastPage}
+          paginationRange={pagination}
+          currentPage={currentPage}
+        />
+      )}
     </>
   );
 };
