@@ -121,7 +121,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = "Input";
 
-const TOTAL_ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 3;
 
 const Pagination = ({
   onArrowClick,
@@ -140,7 +140,7 @@ const Pagination = ({
     <div className="mt-10 flex items-center justify-center gap-1.5 font-medium">
       <button
         className="pagination-arrow mr-1 disabled:opacity-40"
-        onClick={() => onArrowClick(-TOTAL_ITEMS_PER_PAGE)}
+        onClick={() => onArrowClick(-ITEMS_PER_PAGE)}
         disabled={currentPage < 2}
       >
         <Arrow className="fill-white" />
@@ -164,9 +164,7 @@ const Pagination = ({
             }`}
             key={pageNumber}
             onClick={() =>
-              onPageClick(
-                pageNumber * TOTAL_ITEMS_PER_PAGE - TOTAL_ITEMS_PER_PAGE
-              )
+              onPageClick(pageNumber * ITEMS_PER_PAGE - ITEMS_PER_PAGE)
             }
           >
             {pageNumber}
@@ -175,7 +173,7 @@ const Pagination = ({
       })}
       <button
         className="pagination-arrow ml-1 disabled:opacity-40"
-        onClick={() => onArrowClick(+TOTAL_ITEMS_PER_PAGE)}
+        onClick={() => onArrowClick(+ITEMS_PER_PAGE)}
         disabled={lastPage}
       >
         <Arrow className="rotate-180 fill-white" />
@@ -267,48 +265,48 @@ const Items = ({
   );
 };
 
-const formInitialData = {
-  City: "",
+const initialData = {
   For: ["Sell", "Rent"],
+  City: "",
   Type: "",
-  Sort: { name: "Largest Price", value: "price", order: "desc" },
   maxArea: "",
   maxPrice: "",
   minArea: "",
   minPrice: "",
   skip: 0,
-  take: TOTAL_ITEMS_PER_PAGE,
+  take: ITEMS_PER_PAGE,
+  Sort: { name: "Largest Price", value: "price", order: "desc" },
 };
 
 const Listings = () => {
-  const [formData, setFormData] = useState(formInitialData);
+  const [formData, setFormData] = useState(initialData);
+  // const context = trpc.useContext()
   const { data, isLoading } = trpc.useQuery(
     ["estates.show-estates", formData],
     {
       refetchInterval: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
+      // refetchOnMount: false,
     }
   );
   const [estatesCount, estatesData] = data || [];
-
   const { handleSubmit, control, register, reset } =
-    useForm<typeof formInitialData>();
+    useForm<typeof initialData>();
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit((data) =>
     setFormData({
       ...data,
-      Sort: { name: "Largest Price", value: "price", order: "desc" },
-      skip: 0,
-      take: TOTAL_ITEMS_PER_PAGE,
-    });
-  });
+      skip: initialData.skip,
+      take: initialData.take,
+      Sort: initialData.Sort,
+    })
+  );
 
-  const currentPage = formData.skip / TOTAL_ITEMS_PER_PAGE + 1;
+  const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
   const pagination = usePagination({
     totalCount: estatesCount || 0,
-    pageSize: TOTAL_ITEMS_PER_PAGE,
+    pageSize: ITEMS_PER_PAGE,
     currentPage,
   });
   return (
@@ -411,7 +409,7 @@ const Listings = () => {
               type="button"
               onClick={() => {
                 reset();
-                setFormData(formInitialData);
+                setFormData(initialData);
               }}
             >
               Clear
@@ -425,12 +423,12 @@ const Listings = () => {
           options={sortOptions}
           name="Sort"
           value={formData.Sort}
-          onChange={(v: OptionsSort) =>
+          onChange={(sort: OptionsSort) =>
             setFormData({
               ...formData,
-              Sort: { ...v, value: v.value, order: v.order },
               skip: 0,
-              take: TOTAL_ITEMS_PER_PAGE,
+              take: ITEMS_PER_PAGE,
+              Sort: { ...sort, value: sort.value, order: sort.order },
             })
           }
         >
@@ -440,9 +438,9 @@ const Listings = () => {
       {!pagination || pagination.length < 2 ? null : (
         <Pagination
           onArrowClick={(sign = 0) =>
-            setFormData((s) => ({
+            setFormData((d) => ({
               ...formData,
-              skip: s.skip + sign,
+              skip: d.skip + sign,
             }))
           }
           onPageClick={(page: number) =>
