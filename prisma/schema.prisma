@@ -78,3 +78,9 @@ model Estate {
     userId  String
     user    User   @relation(fields: [userId], references: [id])
 }
+
+model Image {
+    id        String  @id @default(cuid())
+    url       String
+    imageType String?
+}
