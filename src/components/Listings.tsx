@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { inferQueryOutput, trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
-import {
-  cityOptions,
-  forOptions,
-  Options,
-  OptionsSort,
-  sortOptions,
-  typeOptions,
-} from "../data/selectOptions";
+import * as options from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
 import Image from "next/future/image";
 import { usePagination } from "../hooks/usePagination";
@@ -32,11 +25,11 @@ const Select = ({
   onChange,
   value,
 }: {
-  options: Options[] | OptionsSort[];
+  options: options.Options[] | options.OptionsSort[];
   name: string;
   children: React.ReactElement;
   multiple?: boolean;
-  onChange: (v: OptionsSort) => void;
+  onChange: (v: options.OptionsSort) => void;
   value: any;
 }) => {
   const isValueObject = typeof value === "object" && !Array.isArray(value);
@@ -60,16 +53,16 @@ const Select = ({
             : !value || value.length === 0
             ? "Select an option"
             : multiple
-            ? value?.map((item: OptionsSort) => item).join(", ")
+            ? value?.map((item: options.OptionsSort) => item).join(", ")
             : value}
         </span>
         <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
       </Listbox.Button>
-      <Listbox.Options className="absolute z-10 mt-1 w-full rounded-2xl border border-blue-300 bg-[#FBFCFF] text-xs">
+      <Listbox.Options className="absolute z-10 mt-1 w-full rounded-xl border border-blue-300 bg-[#FBFCFF] text-xs">
         {options.map((item) => (
           <Listbox.Option
             key={item.id}
-            className="relative cursor-pointer select-none py-2.5 pr-4 hover:rounded-2xl  hover:bg-blue-100"
+            className="relative cursor-pointer select-none h-11 flex items-center pr-4 hover:rounded-xl  hover:bg-blue-100"
             value={!isValueObject ? item.name : item}
           >
             {({ selected }) => {
@@ -118,7 +111,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     </div>
   )
 );
-
 Input.displayName = "Input";
 
 const ITEMS_PER_PAGE = 3;
@@ -281,13 +273,14 @@ const initialData = {
 const Listings = () => {
   const [formData, setFormData] = useState(initialData);
   // const context = trpc.useContext()
-  const { data, isLoading } = trpc.useQuery(
+  const { data, isLoading, isFetching } = trpc.useQuery(
     ["estates.show-estates", formData],
     {
-      refetchInterval: false,
+      // refetchInterval: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
-      // refetchOnMount: false,
+      notifyOnChangeProps: "tracked",
+      refetchOnMount: false,
     }
   );
   const [estatesCount, estatesData] = data || [];
@@ -326,7 +319,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={forOptions}
+                  options={options.For}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -342,7 +335,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={typeOptions}
+                  options={options.Type}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -357,7 +350,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={cityOptions}
+                  options={options.City}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -420,10 +413,10 @@ const Listings = () => {
       </section>
       <Items data={estatesData} isLoading={isLoading} count={estatesCount}>
         <Select
-          options={sortOptions}
+          options={options.Sort}
           name="Sort"
           value={formData.Sort}
-          onChange={(sort: OptionsSort) =>
+          onChange={(sort: options.OptionsSort) =>
             setFormData({
               ...formData,
               skip: 0,

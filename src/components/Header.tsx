@@ -60,7 +60,7 @@ const ProfileMenu = ({
         </div>
       </button>
       <ul
-        className={`transition duration-100 ease-in-out lg:absolute lg:right-0 lg:top-[60px] lg:z-20 lg:whitespace-nowrap lg:rounded-b-md lg:bg-blue-800 lg:shadow-small ${
+        className={`transition duration-100 ease-in-out lg:absolute lg:right-0 lg:top-[60px] lg:z-20 lg:whitespace-nowrap lg:rounded-b-xl lg:bg-blue-800 lg:shadow-small ${
           isOpen
             ? "lg:pointer-events-auto lg:translate-y-0 lg:scale-[unset] lg:opacity-100"
             : "lg:pointer-events-none lg:-translate-y-2.5 lg:scale-[0.98] lg:opacity-0"
