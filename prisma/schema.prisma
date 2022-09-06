@@ -65,8 +65,9 @@ model VerificationToken {
 }
 
 model Estate {
-    id      String @id @default(cuid())
+    id      String   @id @default(cuid())
     name    String
+    Image   String[]
     for     String
     type    String
     city    String
@@ -74,13 +75,14 @@ model Estate {
     price   Int
     area    Float
     rooms   Int
-    body    String @db.Text
+    body    String   @db.Text
     userId  String
-    user    User   @relation(fields: [userId], references: [id])
+    user    User     @relation(fields: [userId], references: [id])
 }
 
-model Image {
-    id        String  @id @default(cuid())
-    url       String
-    imageType String?
-}
+// model Image {
+//     id       String @id @default(cuid())
+//     url      String
+//     estateId String
+//     estate   Estate @relation(fields: [estateId], references: [id])
+// }
