@@ -258,16 +258,16 @@ const Items = ({
 };
 
 const initialData = {
-  For: ["Sell", "Rent"],
-  City: "",
-  Type: "",
+  for: ["Sell", "Rent"],
+  city: "",
+  type: "",
   maxArea: "",
   maxPrice: "",
   minArea: "",
   minPrice: "",
   skip: 0,
   take: ITEMS_PER_PAGE,
-  Sort: { name: "Largest Price", value: "price", order: "desc" },
+  sort: { name: "Largest Price", value: "price", order: "desc" },
 };
 
 const Listings = () => {
@@ -288,12 +288,15 @@ const Listings = () => {
     useForm<typeof initialData>();
 
   const onSubmit = handleSubmit((data) =>
-    setFormData({
-      ...data,
-      skip: initialData.skip,
-      take: initialData.take,
-      Sort: initialData.Sort,
-    })
+    {
+      console.log(data);
+      setFormData({
+        ...data,
+        skip: initialData.skip,
+        take: initialData.take,
+        sort: initialData.sort,
+      })
+    }
   );
 
   const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
@@ -315,7 +318,7 @@ const Listings = () => {
           <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
             <Controller
               defaultValue={[]}
-              name="For"
+              name="for"
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
@@ -331,7 +334,7 @@ const Listings = () => {
             />
             <Controller
               defaultValue=""
-              name="Type"
+              name="type"
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
@@ -346,7 +349,7 @@ const Listings = () => {
             />
             <Controller
               defaultValue=""
-              name="City"
+              name="city"
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
@@ -415,13 +418,13 @@ const Listings = () => {
         <Select
           options={options.Sort}
           name="Sort"
-          value={formData.Sort}
+          value={formData.sort}
           onChange={(sort: options.OptionsSort) =>
             setFormData({
               ...formData,
               skip: 0,
               take: ITEMS_PER_PAGE,
-              Sort: { ...sort, value: sort.value, order: sort.order },
+              sort: { ...sort, value: sort.value, order: sort.order },
             })
           }
         >

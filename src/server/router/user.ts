@@ -4,15 +4,10 @@ import { env } from "../../env/server.mjs";
 import { randomUUID } from "crypto";
 import { z } from "zod";
 const s3 = new AWS.S3({
-  region: "eu-central-1",
+  region: env.AWS_DEFAULT_REGION,
   signatureVersion: "v4",
-  // apiVersion: "2006-03-01",
-  // accessKeyId: env.AWS_ACCESS_KEY_ID,
-  // secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
 });
-// import { S3Client } from "@aws-sdk/client-s3";
 
-// Example router with queries that can only be hit if the user requesting is signed in
 export const userRouter = createProtectedRouter().mutation(
   "createPresignedUrl",
   {
@@ -28,9 +23,8 @@ export const userRouter = createProtectedRouter().mutation(
       body: z.string(),
     }),
     async resolve({ ctx, input }) {
-      const userId = ctx.session.user.id;
       const key = randomUUID();
-      await prisma?.estate.create({
+      await ctx.prisma.estate.create({
         data: {
           name: input.name,
           for: input.for,
@@ -41,7 +35,7 @@ export const userRouter = createProtectedRouter().mutation(
           area: +input.area,
           rooms: +input.rooms,
           body: input.body,
-          userId: userId,
+          userId: ctx.session.user.id as string,
           Image: key,
         },
       });
@@ -60,7 +54,6 @@ export const userRouter = createProtectedRouter().mutation(
           },
           (err, signed) => {
             if (err) return reject(err);
-            console.log(signed);
             resolve(signed);
           }
         );
@@ -68,24 +61,3 @@ export const userRouter = createProtectedRouter().mutation(
     },
   }
 );
-// {
-//   region: env.AWS_DEFAULT_REGION,
-//   credentials: {
-//     accessKeyId: env.AWS_ACCESS_KEY_ID,
-//     secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
-//   },
-// }
-
-// id      String   @id @default(cuid())
-// name    String
-// Image   String[]
-// for     String
-// type    String
-// city    String
-// address String
-// price   Int
-// area    Float
-// rooms   Int
-// body    String   @db.Text
-// userId  String
-// user    User     @relation(fields: [userId], references: [id])
