@@ -18,23 +18,23 @@ export const estatesRouter = createRouter().query("show-estates", {
     take: z.number(),
   }),
   async resolve({ ctx, input }) {
-    const whereInput = {
+    const where = {
       type: { contains: input.type },
       city: { contains: input.city },
       ...(input.for.length !== 0 ? { for: { in: input.for } } : {}),
       AND: [
-        { price: { gte: +input.minPrice } },
-        { price: { lte: +input.maxPrice } },
-        { area: { gte: +input.minArea } },
-        { area: { lte: +input.maxArea } },
+        input.minPrice !== "" ? { price: { gte: +input.minPrice } } : {},
+        input.maxPrice !== "" ? { price: { lte: +input.maxPrice } } : {},
+        input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
+        input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
       ],
     };
     const getEstates = await ctx.prisma.$transaction([
       ctx.prisma.estate.count({
-        where: whereInput,
+        where: where,
       }),
       ctx.prisma.estate.findMany({
-        where: whereInput,
+        where: where,
         orderBy: { [input.sort.value]: input.sort.order },
         skip: input.skip,
         take: input.take,

@@ -117,7 +117,7 @@ const Links = ({
           </li>
           <li className="animate-[fade-in_200ms_ease-in-out_both] lg:order-3">
             <Link
-              href="/"
+              href="/dashboard"
               className="lg:btn-primary flex items-center py-[15px] pl-6"
             >
               <Plus className="mr-8 lg:order-2 lg:mr-0 lg:w-5" />

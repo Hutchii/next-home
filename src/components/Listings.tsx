@@ -62,7 +62,7 @@ const Select = ({
         {options.map((item) => (
           <Listbox.Option
             key={item.id}
-            className="relative cursor-pointer select-none h-11 flex items-center pr-4 hover:rounded-xl  hover:bg-blue-100"
+            className="relative flex h-11 cursor-pointer select-none items-center pr-4 hover:rounded-xl  hover:bg-blue-100"
             value={!isValueObject ? item.name : item}
           >
             {({ selected }) => {
@@ -273,7 +273,7 @@ const initialData = {
 const Listings = () => {
   const [formData, setFormData] = useState(initialData);
   // const context = trpc.useContext()
-  const { data, isLoading, isFetching } = trpc.useQuery(
+  const { data, isLoading } = trpc.useQuery(
     ["estates.show-estates", formData],
     {
       // refetchInterval: false,
@@ -288,15 +288,12 @@ const Listings = () => {
     useForm<typeof initialData>();
 
   const onSubmit = handleSubmit((data) =>
-    {
-      console.log(data);
-      setFormData({
-        ...data,
-        skip: initialData.skip,
-        take: initialData.take,
-        sort: initialData.sort,
-      })
-    }
+    setFormData({
+      ...data,
+      skip: initialData.skip,
+      take: initialData.take,
+      sort: initialData.sort,
+    })
   );
 
   const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
@@ -305,6 +302,7 @@ const Listings = () => {
     pageSize: ITEMS_PER_PAGE,
     currentPage,
   });
+  console.log(formData);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">

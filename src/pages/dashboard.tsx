@@ -4,11 +4,16 @@ import { trpc } from "../utils/trpc";
 const Dashboard = () => {
   const { register, handleSubmit } = useForm();
   const { mutateAsync: createPresignedUrl } = trpc.useMutation(
-    "user.createPresignedUrl"
+    "user.createPresignedUrl", {
+      onSuccess: (data, variables) => {
+        console.log("DATA", data);
+        console.log("VARIABLES",  variables);
+      }
+    }
   );
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data);
+    console.log("SUBMIT", data);
     const { url, fields }: { url: string; fields: any } =
       (await createPresignedUrl(data as any)) as any;
     const fileData = {
@@ -23,15 +28,13 @@ const Dashboard = () => {
     await fetch(url, {
       method: "POST",
       body: formData,
-    }).catch((error) => {
-      console.error("Error:", error);
     });
   });
 
   return (
     <main className="spacer mt-20 bg-blue-800 text-white">
       <h1>YOUR PROFILE</h1>
-      <form onSubmit={onSubmit} className="flex flex-col space-y-5 pb-10">
+      <form onSubmit={onSubmit} className="flex flex-col space-y-5 pb-10 text-blue-800">
         <input type="file" {...register("image")} />
         <input type="text" {...register("name")} placeholder="Name" />
         <input type="text" {...register("for")} placeholder="For" />
