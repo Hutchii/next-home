@@ -34,7 +34,7 @@ const Home: NextPage = () => {
           </p>
         </div>
       </main>
-      {/* <Listings /> */}
+      <Listings />
     </>
   );
 };
