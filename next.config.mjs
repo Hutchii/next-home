@@ -24,11 +24,11 @@ export default defineNextConfig({
     });
     return config;
   },
-  experimental: {
-    images: {
-      allowFutureImage: true,
-    },
-    newNextLinkBehavior: true
-  },
+  // experimental: {
+  //   images: {
+  //     allowFutureImage: true,
+  //   },
+  //   newNextLinkBehavior: true
+  // },
 });
 
