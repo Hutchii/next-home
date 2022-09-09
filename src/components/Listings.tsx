@@ -46,7 +46,7 @@ const Select = ({
     >
       <Listbox.Button className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs">
         {children}
-        <span className="text-grey-500">{name}&nbsp;</span>
+        <span className="text-grey-500 capitalize">{name}&nbsp;</span>
         <span className="pr-4 font-medium text-blue-800">
           {isValueObject
             ? value.name
