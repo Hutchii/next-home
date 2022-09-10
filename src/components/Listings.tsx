@@ -308,7 +308,7 @@ const Listings = () => {
     pageSize: ITEMS_PER_PAGE,
     currentPage,
   });
-  console.log(formData);
+  console.log(formData.skip, estatesCount);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -446,7 +446,7 @@ const Listings = () => {
           onPageClick={(page: number) =>
             setFormData({ ...formData, skip: page })
           }
-          lastPage={formData.skip === estatesCount! - 1}
+          lastPage={formData.skip + ITEMS_PER_PAGE >= estatesCount}
           paginationRange={pagination}
           currentPage={currentPage}
         />
