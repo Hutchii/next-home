@@ -16,6 +16,7 @@ import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
 import Door from "../../public/svg/door.svg";
 import Arrow from "../../public/svg/arrow.svg";
+import { env } from "../env/client.mjs";
 
 const Select = ({
   options,
@@ -46,7 +47,7 @@ const Select = ({
     >
       <Listbox.Button className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs">
         {children}
-        <span className="text-grey-500 capitalize">{name}&nbsp;</span>
+        <span className="capitalize text-grey-500">{name}&nbsp;</span>
         <span className="pr-4 font-medium text-blue-800">
           {isValueObject
             ? value.name
@@ -199,59 +200,64 @@ const Items = ({
       <div className="sm:spacer grid-container mt-10">
         {!isLoading &&
           data &&
-          data.map((item) => (
-            <div className="rounded-3xl bg-white shadow-small" key={item.id}>
-              <Image
-                className="w-full rounded-t-3xl"
-                src="/img/home.jpg"
-                alt="Estate"
-                width={484}
-                height={280}
-              />
-              <div className="flex flex-col gap-1.5 px-6 pt-4 pb-8 sm:px-8">
-                <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
-                  {item.type}
-                  <span className="h-1.5 w-1.5 rounded-full bg-grey-500"></span>
-                  {item.for}
-                </p>
-                <p className="text-md font-semibold text-blue-800/90">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "EUR",
-                  }).format(item.price)}
-                </p>
-                <p className="text-sm tracking-tight text-blue-800/80">
-                  {item.address}
-                </p>
-                <div className="flex gap-5 pt-2.5">
-                  <div className="flex items-center gap-1">
-                    <Area className="mt-[1px]" />
-                    <p className="text-xs text-grey-500">{item.area} m²</p>
+          data.map((item) => {
+            console.log(item);
+            return (
+              <div className="rounded-3xl bg-white shadow-small" key={item.id}>
+                <Image
+                  className="w-full rounded-t-3xl"
+                  src={`${env.NEXT_PUBLIC_AWS}/${item.Image}`}
+                  alt="Estate"
+                  width={484}
+                  height={280}
+                />
+                <div className="flex flex-col gap-1.5 px-6 pt-4 pb-8 sm:px-8">
+                  <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
+                    {item.type}
+                    <span className="h-1.5 w-1.5 rounded-full bg-grey-500"></span>
+                    {item.for}
+                  </p>
+                  <p className="text-md font-semibold text-blue-800/90">
+                    {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "EUR",
+                    }).format(item.price)}
+                  </p>
+                  <p className="text-sm tracking-tight text-blue-800/80">
+                    {item.address}
+                  </p>
+                  <div className="flex gap-5 pt-2.5">
+                    <div className="flex items-center gap-1">
+                      <Area className="mt-[1px]" />
+                      <p className="text-xs text-grey-500">{item.area} m²</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Door className="mt-[1px]" />
+                      <p className="text-xs text-grey-500">
+                        {item.rooms} rooms
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Door className="mt-[1px]" />
-                    <p className="text-xs text-grey-500">{item.rooms} rooms</p>
-                  </div>
-                </div>
-                <div className="my-4 h-[1px] w-full bg-blue-800/10" />
-                <div className="flex items-center gap-3">
-                  <div>
-                    <Image
-                      className="rounded-full"
-                      src="/img/avatar.jpg"
-                      alt="Estate"
-                      width={46}
-                      height={46}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-800">Andrzej Kowalski</p>
-                    <p className="text-xs text-grey-500">+48 111 222 333</p>
+                  <div className="my-4 h-[1px] w-full bg-blue-800/10" />
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <Image
+                        className="rounded-full"
+                        src="/img/avatar.jpg"
+                        alt="Estate"
+                        width={46}
+                        height={46}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-xs text-blue-800">Andrzej Kowalski</p>
+                      <p className="text-xs text-grey-500">+48 111 222 333</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
     </section>
   );

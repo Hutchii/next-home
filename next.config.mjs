@@ -24,11 +24,13 @@ export default defineNextConfig({
     });
     return config;
   },
+  images: {
+    domains: ["next-home.s3.eu-central-1.amazonaws.com"],
+  },
   experimental: {
     images: {
       allowFutureImage: true,
     },
-    newNextLinkBehavior: true
+    newNextLinkBehavior: true,
   },
 });
-
