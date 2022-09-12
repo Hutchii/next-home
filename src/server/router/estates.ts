@@ -1,7 +1,7 @@
 import { createRouter } from "./context";
 import { z } from "zod";
 
-export const estatesRouter = createRouter().query("show-estates", {
+export const publicRouter = createRouter().query("show-estates", {
   input: z.object({
     for: z.array(z.string()),
     type: z.string(),

@@ -25,7 +25,10 @@ export default defineNextConfig({
     return config;
   },
   images: {
-    domains: ["next-home.s3.eu-central-1.amazonaws.com"],
+    domains: [
+      "next-home.s3.eu-central-1.amazonaws.com",
+      "static-cdn.jtvnw.net",
+    ],
   },
   experimental: {
     newNextLinkBehavior: true,

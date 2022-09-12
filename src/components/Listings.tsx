@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { inferQueryOutput, trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
-import * as options from "../data/selectOptions";
+import { options, Options, OptionsSort } from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
 import Image from "next/future/image";
 import { usePagination } from "../hooks/usePagination";
@@ -26,11 +26,11 @@ const Select = ({
   onChange,
   value,
 }: {
-  options: options.Options[] | options.OptionsSort[];
+  options: Options[] | OptionsSort[];
   name: string;
   children: React.ReactElement;
   multiple?: boolean;
-  onChange: (v: options.OptionsSort) => void;
+  onChange: (v: OptionsSort) => void;
   value: any;
 }) => {
   const isValueObject = typeof value === "object" && !Array.isArray(value);
@@ -60,7 +60,7 @@ const Select = ({
                 : !value || value.length === 0
                 ? "Select an option"
                 : multiple
-                ? value?.map((item: options.OptionsSort) => item).join(", ")
+                ? value?.map((item: OptionsSort) => item).join(", ")
                 : value}
             </span>
             <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
@@ -105,17 +105,23 @@ const Select = ({
 type InputProps = React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
-> & { placeholder: string; children: React.ReactElement };
+> & {
+  placeholder: string;
+  children?: React.ReactElement;
+  type: string;
+  max?: string;
+};
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ placeholder, children, ...props }, ref) => (
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ placeholder, children, type, max, ...props }, ref) => (
     <div className="relative flex-1">
       <input
         {...props}
         ref={ref}
-        type="number"
+        type={type}
+        max={max ? max : undefined}
         placeholder={placeholder}
-        className="h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 pr-4 text-xs font-medium text-blue-800 outline-none placeholder:text-xs placeholder:font-normal placeholder:text-grey-500 focus:ring-1 focus:ring-blue-300"
+        className={`h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 pr-4 text-xs font-medium text-blue-800 outline-none placeholder:text-xs placeholder:font-normal placeholder:text-grey-500 focus:ring-1 focus:ring-blue-300`}
       />
       {children}
     </div>
@@ -321,6 +327,7 @@ const Listings = () => {
     pageSize: ITEMS_PER_PAGE,
     currentPage,
   });
+  console.log(errors);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -338,7 +345,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={options.For}
+                  options={options.for}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -354,7 +361,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={options.Type}
+                  options={options.type}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -369,7 +376,7 @@ const Listings = () => {
               control={control}
               render={({ field: { onChange, value, name } }) => (
                 <Select
-                  options={options.City}
+                  options={options.city}
                   name={name}
                   onChange={onChange}
                   value={value}
@@ -383,7 +390,9 @@ const Listings = () => {
             <div className="flex w-full flex-[1_1_320px] items-center gap-1">
               <Input
                 placeholder="Min Price"
-                {...register("minPrice", { max: 9999999 })}
+                {...register("minPrice")}
+                type="number"
+                max="9999999"
               >
                 <Price
                   className="absolute top-1/2 left-4 -translate-y-1/2"
@@ -393,7 +402,9 @@ const Listings = () => {
               <span className="text-grey-500">-</span>
               <Input
                 placeholder="Max Price"
-                {...register("maxPrice", { max: 9999999 })}
+                {...register("maxPrice")}
+                type="number"
+                max="9999999"
               >
                 <Price
                   className="absolute top-1/2 left-4 -translate-y-1/2"
@@ -402,14 +413,24 @@ const Listings = () => {
               </Input>
             </div>
             <div className="flex w-full flex-[1_1_320px] items-center gap-1">
-              <Input placeholder="Min Area" {...register("minArea")}>
+              <Input
+                placeholder="Min Area"
+                {...register("minArea")}
+                type="number"
+                max="9999999"
+              >
                 <Area
                   className="absolute top-1/2 left-4 -translate-y-1/2"
                   aria-hidden="true"
                 />
               </Input>
               <span className="text-grey-500">-</span>
-              <Input placeholder="Max Area" {...register("maxArea")}>
+              <Input
+                placeholder="Max Area"
+                {...register("maxArea")}
+                type="number"
+                max="9999999"
+              >
                 <Area
                   className="absolute top-1/2 left-4 -translate-y-1/2"
                   aria-hidden="true"
@@ -438,10 +459,10 @@ const Listings = () => {
       </section>
       <Items data={estatesData} isLoading={isLoading} count={estatesCount}>
         <Select
-          options={options.Sort}
+          options={options.sort}
           name="Sort"
           value={formData.sort}
-          onChange={(sort: options.OptionsSort) =>
+          onChange={(sort: OptionsSort) =>
             setFormData({
               ...formData,
               skip: initialData.skip,

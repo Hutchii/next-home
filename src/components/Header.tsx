@@ -67,19 +67,19 @@ const ProfileMenu = ({
         }`}
       >
         <li>
-          <Link href="/" className={linkStyle}>
+          <Link href="/profile" className={linkStyle}>
             <User className="mr-8 lg:order-2 lg:mr-0 lg:ml-5" />
             My settings
           </Link>
         </li>
         <li>
-          <Link href="/" className={linkStyle}>
+          <Link href="/profile/listings" className={linkStyle}>
             <List className="mr-8 lg:order-2 lg:mr-0 lg:ml-5" />
             My listings
           </Link>
         </li>
         <li>
-          <Link href="/" className={linkStyle}>
+          <Link href="/profile/favourites" className={linkStyle}>
             <Heart className="mr-8 lg:order-2 lg:mr-0 lg:ml-5" />
             My favourites
           </Link>
@@ -117,7 +117,7 @@ const Links = ({
           </li>
           <li className="animate-[fade-in_200ms_ease-in-out_both] lg:order-3">
             <Link
-              href="/dashboard"
+              href="/add-new-estate"
               className="lg:btn-primary flex items-center py-[15px] pl-6"
             >
               <Plus className="mr-8 lg:order-2 lg:mr-0 lg:w-5" />

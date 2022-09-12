@@ -4,19 +4,19 @@ import { randomUUID } from "crypto";
 import { env } from "./../../env/server.mjs";
 
 import { z } from "zod";
+import { resolve } from "path";
 const s3 = new AWS.S3({
   region: "eu-central-1",
   signatureVersion: "v4",
-  apiVersion: '2006-03-01',
+  apiVersion: "2006-03-01",
   accessKeyId: env.ACCESS_KEY,
   secretAccessKey: env.SECRET_KEY,
 });
 
-export const userRouter = createProtectedRouter().mutation(
-  "createPresignedUrl",
-  {
+export const protectedRouter = createProtectedRouter()
+  .mutation("createPresignedUrl", {
     input: z.object({
-      name: z.string(),
+      name: z.string().min(3),
       for: z.string(),
       type: z.string(),
       city: z.string(),
@@ -63,5 +63,39 @@ export const userRouter = createProtectedRouter().mutation(
         );
       });
     },
-  }
-);
+  })
+  .mutation("editProfile", {
+    input: z.object({
+      name: z.string(),
+      phone: z.string(),
+      email: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      await ctx.prisma.user.update({
+        where: {
+          id: ctx.session.user.id,
+        },
+        data: {
+          name: input.name,
+          phone: input.phone,
+          contactEmail: input.email,
+        },
+      });
+    },
+  })
+  .query("getUser", {
+    async resolve({ ctx }) {
+      const userData = await ctx.prisma.user.findFirst({
+        where: {
+          id: ctx.session.user.id,
+        },
+        select: {
+          email: true,
+          name: true,
+          phone: true,
+          contactEmail: true,
+        },
+      });
+      return userData;
+    },
+  });
