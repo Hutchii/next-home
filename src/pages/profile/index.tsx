@@ -5,6 +5,7 @@ import { Input } from "../../components/Listings";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
+import { useQueryClient } from "react-query";
 
 export const Layout = ({ children }: { children: React.ReactElement }) => {
   return (
@@ -38,7 +39,7 @@ export const Layout = ({ children }: { children: React.ReactElement }) => {
 const initialData = {
   name: "",
   phone: "",
-  email: "",
+  contactEmail: "",
 };
 
 const Profile = () => {
@@ -53,11 +54,19 @@ const Profile = () => {
     refetchOnMount: false,
   });
 
-  const mutation = trpc.useMutation("user.editProfile");
+  const context = trpc.useContext();
+
+  const mutation = trpc.useMutation("user.editProfile", {
+    onSuccess: (_data, variables) => {
+      console.log(data, variables);
+      const test = {...variables, email: session?.user?.email}
+      context.setQueryData(["user.getUser"], () => test);
+    },
+  });
 
   const onSubmit = handleSubmit((data) => {
     console.log(data);
-    // mutation.mutate(data);
+    mutation.mutate(data);
   });
   console.log(data);
   return (
@@ -101,9 +110,9 @@ const Profile = () => {
             />
             <input
               defaultValue={data?.contactEmail ?? ""}
-              type="email"
+              type="contactEmail"
               placeholder="Please fill in!"
-              {...register("email")}
+              {...register("contactEmail")}
             />
             <button className="btn-primary">Send</button>
           </form>

@@ -68,7 +68,7 @@ export const protectedRouter = createProtectedRouter()
     input: z.object({
       name: z.string(),
       phone: z.string(),
-      email: z.string(),
+      contactEmail: z.string(),
     }),
     async resolve({ ctx, input }) {
       await ctx.prisma.user.update({
@@ -78,7 +78,7 @@ export const protectedRouter = createProtectedRouter()
         data: {
           name: input.name,
           phone: input.phone,
-          contactEmail: input.email,
+          contactEmail: input.contactEmail,
         },
       });
     },
