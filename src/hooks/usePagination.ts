@@ -13,16 +13,16 @@ export const usePagination = ({
   currentPage,
   siblingCount = 1,
 }: {
-  totalCount: number;
+  totalCount: number | undefined;
   pageSize: number;
   currentPage: number;
   siblingCount?: number;
 }) => {
   const paginationRange = useMemo(() => {
+    if (pageSize === 0 || !totalCount) return null;
     const totalPageCount = Math.ceil(totalCount / pageSize);
     const totalPageNumbers = siblingCount + 5;
 
-    if (pageSize === 0) return null;
     if (totalPageNumbers >= totalPageCount) {
       return range(1, totalPageCount);
     }

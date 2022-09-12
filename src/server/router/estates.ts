@@ -19,14 +19,14 @@ export const estatesRouter = createRouter().query("show-estates", {
   }),
   async resolve({ ctx, input }) {
     const where = {
-      type: { contains: input.type },
-      city: { contains: input.city },
-      ...(input.for.length !== 0 ? { for: { in: input.for } } : {}),
+      ...(input.type ? { type: { contains: input.type } } : undefined),
+      ...(input.city ? { type: { contains: input.city } } : undefined),
+      ...(input.for.length !== 0 ? { for: { in: input.for } } : undefined),
       AND: [
-        input.minPrice !== "" ? { price: { gte: +input.minPrice } } : {},
-        input.maxPrice !== "" ? { price: { lte: +input.maxPrice } } : {},
-        input.minArea !== "" ? { area: { gte: +input.minArea } } : {},
-        input.maxArea !== "" ? { area: { lte: +input.maxArea } } : {},
+        input.minPrice ? { price: { gte: +input.minPrice } } : {},
+        input.maxPrice ? { price: { lte: +input.maxPrice } } : {},
+        input.minArea ? { area: { gte: +input.minArea } } : {},
+        input.maxArea ? { area: { lte: +input.maxArea } } : {},
       ],
     };
     const getEstates = await ctx.prisma.$transaction([
@@ -43,8 +43,3 @@ export const estatesRouter = createRouter().query("show-estates", {
     return getEstates;
   },
 });
-
-// OR: [
-//   For1 ? { for: { contains: For1 } } : {},
-//   // For2 ? { for: { contains: For2 } } : {},
-// ],

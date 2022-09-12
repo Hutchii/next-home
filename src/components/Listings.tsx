@@ -45,50 +45,59 @@ const Select = ({
       name={name}
       multiple={multiple}
     >
-      <Listbox.Button className="flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs">
-        {children}
-        <span className="capitalize text-grey-500">{name}&nbsp;</span>
-        <span className="pr-4 font-medium text-blue-800">
-          {isValueObject
-            ? value.name
-            : !value || value.length === 0
-            ? "Select an option"
-            : multiple
-            ? value?.map((item: options.OptionsSort) => item).join(", ")
-            : value}
-        </span>
-        <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
-      </Listbox.Button>
-      <Listbox.Options className="absolute z-10 mt-1 w-full rounded-xl border border-blue-300 bg-[#FBFCFF] text-xs">
-        {options.map((item) => (
-          <Listbox.Option
-            key={item.id}
-            className="relative flex h-11 cursor-pointer select-none items-center pr-4 hover:rounded-xl  hover:bg-blue-100"
-            value={!isValueObject ? item.name : item}
+      {({ open }) => (
+        <>
+          <Listbox.Button
+            className={`flex h-10 w-full items-center rounded-full border border-blue-300 bg-blue-100/20 pl-4 text-xs ${
+              open ? "outline-none ring-1 ring-blue-300" : ""
+            }`}
           >
-            {({ selected }) => {
-              const selectedCondition = isValueObject
-                ? item.name === value.name
-                : selected;
-              return (
-                <span
-                  className={`block pl-11 ${
-                    selectedCondition ? "font-medium" : "font-normal"
-                  }`}
-                >
-                  {selectedCondition ? (
-                    <Check
-                      aria-hidden="true"
-                      className="absolute left-0 top-1/2 mr-2 ml-4 -translate-y-1/2"
-                    />
-                  ) : null}
-                  {item.name}
-                </span>
-              );
-            }}
-          </Listbox.Option>
-        ))}
-      </Listbox.Options>
+            {children}
+            <span className="capitalize text-grey-500">{name}&nbsp;</span>
+            <span className="pr-4 font-medium text-blue-800">
+              {isValueObject
+                ? value.name
+                : !value || value.length === 0
+                ? "Select an option"
+                : multiple
+                ? value?.map((item: options.OptionsSort) => item).join(", ")
+                : value}
+            </span>
+            <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
+          </Listbox.Button>
+
+          <Listbox.Options className="absolute z-10 mt-1 w-full rounded-xl border border-blue-300 bg-[#FBFCFF] text-xs">
+            {options.map((item) => (
+              <Listbox.Option
+                key={item.id}
+                className="relative flex h-11 cursor-pointer select-none items-center pr-4 hover:rounded-xl  hover:bg-blue-100"
+                value={!isValueObject ? item.name : item}
+              >
+                {({ selected }) => {
+                  const selectedCondition = isValueObject
+                    ? item.name === value.name
+                    : selected;
+                  return (
+                    <span
+                      className={`block pl-11 ${
+                        selectedCondition ? "font-medium" : "font-normal"
+                      }`}
+                    >
+                      {selectedCondition ? (
+                        <Check
+                          aria-hidden="true"
+                          className="absolute left-0 top-1/2 mr-2 ml-4 -translate-y-1/2"
+                        />
+                      ) : null}
+                      {item.name}
+                    </span>
+                  );
+                }}
+              </Listbox.Option>
+            ))}
+          </Listbox.Options>
+        </>
+      )}
     </Listbox>
   );
 };
@@ -106,7 +115,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         type="number"
         placeholder={placeholder}
-        className="h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 pr-4 text-xs font-medium text-blue-800 placeholder:text-xs placeholder:font-normal placeholder:text-grey-500"
+        className="h-10 w-full rounded-full border border-blue-300 bg-[#FBFCFF] pl-11 pr-4 text-xs font-medium text-blue-800 outline-none placeholder:text-xs placeholder:font-normal placeholder:text-grey-500 focus:ring-1 focus:ring-blue-300"
       />
       {children}
     </div>
@@ -125,12 +134,12 @@ const Pagination = ({
 }: {
   onArrowClick: (sign: number) => void;
   onPageClick: (page: number) => void;
-  lastPage: boolean;
+  lastPage: boolean | undefined;
   paginationRange: (number | string)[];
   currentPage: number;
 }) => {
   return (
-    <div className="mt-10 flex items-center justify-center gap-1.5 font-medium">
+    <>
       <button
         className="pagination-arrow mr-1 disabled:opacity-40"
         onClick={() => onArrowClick(-ITEMS_PER_PAGE)}
@@ -171,7 +180,7 @@ const Pagination = ({
       >
         <Arrow className="rotate-180 fill-white" />
       </button>
-    </div>
+    </>
   );
 };
 
@@ -201,7 +210,6 @@ const Items = ({
         {!isLoading &&
           data &&
           data.map((item) => {
-            console.log(item);
             return (
               <div className="rounded-3xl bg-white shadow-small" key={item.id}>
                 <Image
@@ -278,20 +286,25 @@ const initialData = {
 
 const Listings = () => {
   const [formData, setFormData] = useState(initialData);
-  // const context = trpc.useContext()
+  // const context = trpc.useContext();
   const { data, isLoading } = trpc.useQuery(
     ["estates.show-estates", formData],
     {
-      // refetchInterval: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
       notifyOnChangeProps: "tracked",
       refetchOnMount: false,
     }
   );
+
   const [estatesCount, estatesData] = data || [];
-  const { handleSubmit, control, register, reset } =
-    useForm<typeof initialData>();
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+    register,
+    reset,
+  } = useForm<typeof initialData>();
 
   const onSubmit = handleSubmit((data) =>
     setFormData({
@@ -304,11 +317,10 @@ const Listings = () => {
 
   const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
   const pagination = usePagination({
-    totalCount: estatesCount || 0,
+    totalCount: estatesCount,
     pageSize: ITEMS_PER_PAGE,
     currentPage,
   });
-  console.log(formData.skip, estatesCount);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -369,14 +381,20 @@ const Listings = () => {
           </div>
           <div className="space-y-2.5 sm:flex sm:flex-wrap sm:gap-2.5 sm:space-y-0">
             <div className="flex w-full flex-[1_1_320px] items-center gap-1">
-              <Input placeholder="Min Price" {...register("minPrice")}>
+              <Input
+                placeholder="Min Price"
+                {...register("minPrice", { max: 9999999 })}
+              >
                 <Price
                   className="absolute top-1/2 left-4 -translate-y-1/2"
                   aria-hidden="true"
                 />
               </Input>
               <span className="text-grey-500">-</span>
-              <Input placeholder="Max Price" {...register("maxPrice")}>
+              <Input
+                placeholder="Max Price"
+                {...register("maxPrice", { max: 9999999 })}
+              >
                 <Price
                   className="absolute top-1/2 left-4 -translate-y-1/2"
                   aria-hidden="true"
@@ -426,8 +444,8 @@ const Listings = () => {
           onChange={(sort: options.OptionsSort) =>
             setFormData({
               ...formData,
-              skip: 0,
-              take: ITEMS_PER_PAGE,
+              skip: initialData.skip,
+              take: initialData.take,
               sort: { ...sort, value: sort.value, order: sort.order },
             })
           }
@@ -435,22 +453,24 @@ const Listings = () => {
           <Home className="mr-2" aria-hidden="true" />
         </Select>
       </Items>
-      {!pagination || pagination.length < 2 ? null : (
-        <Pagination
-          onArrowClick={(sign = 0) =>
-            setFormData((d) => ({
-              ...formData,
-              skip: d.skip + sign,
-            }))
-          }
-          onPageClick={(page: number) =>
-            setFormData({ ...formData, skip: page })
-          }
-          lastPage={formData.skip + ITEMS_PER_PAGE >= estatesCount}
-          paginationRange={pagination}
-          currentPage={currentPage}
-        />
-      )}
+      <div className="mt-10 flex h-10 items-center justify-center gap-1.5 font-medium">
+        {!pagination || pagination.length < 2 ? null : (
+          <Pagination
+            onArrowClick={(sign = 0) =>
+              setFormData((d) => ({
+                ...formData,
+                skip: d.skip + sign,
+              }))
+            }
+            onPageClick={(page: number) =>
+              setFormData({ ...formData, skip: page })
+            }
+            lastPage={formData.skip + ITEMS_PER_PAGE >= estatesCount}
+            paginationRange={pagination}
+            currentPage={currentPage}
+          />
+        )}
+      </div>
     </>
   );
 };
