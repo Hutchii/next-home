@@ -1,11 +1,8 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/future/image";
-import { Input } from "../../components/Listings";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { trpc } from "../../utils/trpc";
-import { useQueryClient } from "react-query";
 
 export const Layout = ({ children }: { children: React.ReactElement }) => {
   return (
@@ -43,7 +40,6 @@ const initialData = {
 };
 
 const Profile = () => {
-  // const [formData, setFormData] = useState(initialData);
   const { data: session } = useSession();
   const { handleSubmit, register } = useForm<typeof initialData>();
 
@@ -54,20 +50,18 @@ const Profile = () => {
     refetchOnMount: false,
   });
 
-  const context = trpc.useContext();
+  const { setQueryData } = trpc.useContext();
 
   const mutation = trpc.useMutation("user.editProfile", {
-    onSuccess: (_data, variables) => {
-      console.log(data, variables);
-      const test = {...variables, email: session?.user?.email}
-      context.setQueryData(["user.getUser"], () => test);
+    onSuccess: (_, variables) => {
+      if (data?.email) {
+        const userData = { ...variables, email: data.email };
+        setQueryData(["user.getUser"], () => userData);
+      }
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    mutation.mutate(data);
-  });
+  const onSubmit = handleSubmit((data) => mutation.mutate(data));
   console.log(data);
   return (
     <Layout>
@@ -116,6 +110,7 @@ const Profile = () => {
             />
             <button className="btn-primary">Send</button>
           </form>
+          <h1>{data?.name}</h1>
         </div>
       )}
     </Layout>

@@ -16,7 +16,9 @@ import Area from "../../public/svg/area.svg";
 import Clear from "../../public/svg/x.svg";
 import Door from "../../public/svg/door.svg";
 import Arrow from "../../public/svg/arrow.svg";
+import Heart from "../../public/svg/heart.svg";
 import { env } from "../env/client.mjs";
+import { useSession } from "next-auth/react";
 
 const Select = ({
   options,
@@ -203,6 +205,7 @@ const Items = ({
   children: React.ReactElement;
   count: ShowEstatesOutput[0] | undefined;
 }) => {
+  const { data: session } = useSession();
   return (
     <section>
       <div className="spacer mt-20 md:flex md:items-center md:justify-between">
@@ -217,7 +220,10 @@ const Items = ({
           data &&
           data.map((item) => {
             return (
-              <div className="rounded-3xl bg-white shadow-small" key={item.id}>
+              <div
+                className="relative rounded-3xl bg-white shadow-small"
+                key={item.id}
+              >
                 <Image
                   className="w-full rounded-t-3xl"
                   src={`${env.NEXT_PUBLIC_AWS}/${item.Image}`}
@@ -225,6 +231,11 @@ const Items = ({
                   width={484}
                   height={280}
                 />
+                {session && (
+                  <div className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-grey-400">
+                    <Heart className=" h-8 w-8" />
+                  </div>
+                )}
                 <div className="flex flex-col gap-1.5 px-6 pt-4 pb-8 sm:px-8">
                   <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
                     {item.type}

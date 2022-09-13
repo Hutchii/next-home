@@ -4,7 +4,6 @@ import { randomUUID } from "crypto";
 import { env } from "./../../env/server.mjs";
 
 import { z } from "zod";
-import { resolve } from "path";
 const s3 = new AWS.S3({
   region: "eu-central-1",
   signatureVersion: "v4",
@@ -85,7 +84,7 @@ export const protectedRouter = createProtectedRouter()
   })
   .query("getUser", {
     async resolve({ ctx }) {
-      const userData = await ctx.prisma.user.findFirst({
+      return await ctx.prisma.user.findFirst({
         where: {
           id: ctx.session.user.id,
         },
@@ -96,6 +95,16 @@ export const protectedRouter = createProtectedRouter()
           contactEmail: true,
         },
       });
-      return userData;
     },
-  });
+  })
+  .query("getEstates", {
+    async resolve({ ctx }) {
+      return await ctx.prisma.estate.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+    },
+  }).mutation("addFavourites", {
+    const 
+  })

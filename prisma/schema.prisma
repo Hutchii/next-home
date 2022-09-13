@@ -54,7 +54,8 @@ model User {
     sessions      Session[]
     description   String?
     phone         String?
-    Estate        Estate[]
+    Estate        Estate[]  @relation("Estate")
+    Favourite     Estate[]  @relation("Favourite")
 }
 
 model VerificationToken {
@@ -66,17 +67,19 @@ model VerificationToken {
 }
 
 model Estate {
-    id      String   @id @default(cuid())
-    name    String
-    Image   String[]
-    for     String
-    type    String
-    city    String
-    address String
-    price   Int
-    area    Float
-    rooms   Int
-    body    String   @db.Text
-    userId  String
-    user    User     @relation(fields: [userId], references: [id])
+    id           String   @id @default(cuid())
+    name         String
+    Image        String[]
+    for          String
+    type         String
+    city         String
+    address      String
+    price        Int
+    area         Float
+    rooms        Int
+    body         String   @db.Text
+    userId       String
+    favouritesId String[]
+    user         User     @relation(fields: [userId], references: [id], name: "Estate")
+    favourite    User     @relation(fields: [favouritesId], references: [id], name: "Favourite")
 }
