@@ -283,23 +283,25 @@ const Items = ({
                   width={484}
                   height={280}
                 />
-                <button
-                  className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-grey-400/80"
-                  onClick={() => {
-                    mutation.mutate({
-                      id: item.id,
-                      action: item.favouritesId[0]?.id === session?.user?.id,
-                    });
-                  }}
-                >
-                  <Heart
-                    className={`h-8 w-8  ${
-                      item.favouritesId[0]?.id === session?.user?.id
-                        ? "fill-red-500"
-                        : ""
-                    }`}
-                  />
-                </button>
+                {session && (
+                  <button
+                    className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-grey-400/80"
+                    onClick={() => {
+                      mutation.mutate({
+                        id: item.id,
+                        action: item.favouritesId[0]?.id === session?.user?.id,
+                      });
+                    }}
+                  >
+                    <Heart
+                      className={`h-8 w-8  ${
+                        item.favouritesId[0]?.id === session?.user?.id
+                          ? "fill-red-500"
+                          : ""
+                      }`}
+                    />
+                  </button>
+                )}
                 <div className="flex flex-col gap-1.5 px-6 pt-4 pb-8 sm:px-8">
                   <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
                     {item.type}
