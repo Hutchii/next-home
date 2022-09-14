@@ -249,7 +249,8 @@ const Items = ({
       return { prevData };
     },
     onError: (err, newTodo, context) => {
-      qc.setQueryData(["estates.show-estates", formData], context?.prevData);
+      if (context?.prevData)
+        qc.setQueryData(["estates.show-estates", formData], context?.prevData);
     },
     onSettled: () => {
       qc.invalidateQueries(["estates.show-estates", formData]);
