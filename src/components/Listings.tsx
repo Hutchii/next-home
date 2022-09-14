@@ -192,55 +192,69 @@ const Pagination = ({
   );
 };
 
-type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
+// type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
+
+const initialData = {
+  for: ["Sell", "Rent"],
+  city: "",
+  type: "",
+  maxArea: "",
+  maxPrice: "",
+  minArea: "",
+  minPrice: "",
+  skip: 0,
+  take: ITEMS_PER_PAGE,
+  sort: { name: "Largest Price", value: "price", order: "desc" },
+};
 
 const Items = ({
-  // data,
-  // isLoading,
   children,
-  count,
   formData,
 }: {
-  // data: ShowEstatesOutput[1] | undefined;
-  // isLoading: boolean;
   children: React.ReactElement;
-  count: ShowEstatesOutput[0] | undefined;
+  formData: typeof initialData;
 }) => {
   const { data: session } = useSession();
   const qc = trpc.useContext();
   const { data, isLoading } = trpc.useQuery(
     ["estates.show-estates", formData],
     {
-      // refetchOnReconnect: false,
-      // refetchOnWindowFocus: false,
-      // notifyOnChangeProps: "tracked",
-      // refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      notifyOnChangeProps: "tracked",
+      refetchOnMount: false,
     }
   );
-
   const [estatesCount, estatesData] = data || [];
   const mutation = trpc.useMutation("user.addFavourites", {
-    onMutate: async (inputData) => {
-      // await qc.cancelQuery(["estates.show-estates"]);
-      console.log(inputData.id);
-      // const previousEstates = qc.getQueryData(["estates.show-estates", data.id]);
-      const filteredData = estatesData?.map((f) =>
-        f.id === inputData.id
-          ? {
-              ...f,
-              favouritesId: [...f.favouritesId, { id: session?.user?.id }],
-            }
-          : f
-      );
-      console.log("TEST", filteredData);
-      // filteredData.id = variables.id;
-      // const filteredData2 = data?.filter(f => f.id !== variables.id);
-      // console.log('Render', filteredData);
-      qc.setQueryData(["estates.show-estates"], filteredData)
+    onMutate: async (input) => {
+      await qc.cancelQuery(["estates.show-estates", formData]);
+      const prevData = qc.getQueryData(["estates.show-estates", formData]);
+      const sessionId = session?.user?.id;
+      if (prevData) {
+        qc.setQueryData(["estates.show-estates", formData], () => {
+          const filteredData = prevData[1]?.map((f) =>
+            f.id === input.id && sessionId
+              ? {
+                  ...f,
+                  favouritesId: input.action
+                    ? f.favouritesId.filter((f) => f.id !== sessionId)
+                    : [...f.favouritesId, { id: sessionId }],
+                }
+              : f
+          );
+          return [prevData[0], filteredData];
+        });
+      }
+      return { prevData };
+    },
+    onError: (err, newTodo, context) => {
+      qc.setQueryData(["estates.show-estates", formData], context?.prevData);
+    },
+    onSettled: () => {
+      qc.invalidateQueries(["estates.show-estates", formData]);
     },
   });
-
-  console.log("RE-RENDER", data);
   return (
     <section>
       <div className="spacer mt-20 md:flex md:items-center md:justify-between">
@@ -335,19 +349,6 @@ const Items = ({
       </div>
     </section>
   );
-};
-
-const initialData = {
-  for: ["Sell", "Rent"],
-  city: "",
-  type: "",
-  maxArea: "",
-  maxPrice: "",
-  minArea: "",
-  minPrice: "",
-  skip: 0,
-  take: ITEMS_PER_PAGE,
-  sort: { name: "Largest Price", value: "price", order: "desc" },
 };
 
 const Listings = () => {
