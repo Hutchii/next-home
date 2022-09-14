@@ -1,17 +1,15 @@
 // src/pages/_app.tsx
 import { withTRPC } from "@trpc/next";
 import type { AppRouter } from "../server/router";
-import type { AppType } from "next/dist/shared/lib/utils";
+import type { AppProps } from "next/app";
 import superjson from "superjson";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
 import Header from "../components/Header";
 import Head from "next/head";
+import { Session } from "next-auth";
 
-const MyApp: AppType = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}) => {
+const MyApp = ({ Component, pageProps }: AppProps<{ session: Session }>) => {
   return (
     <>
       <Head>
@@ -20,7 +18,7 @@ const MyApp: AppType = ({
           content="width=device-width, minimum-scale=1, initial-scale=1, shrink-to-fit=no"
         />
       </Head>
-      <SessionProvider session={session}>
+      <SessionProvider session={pageProps.session}>
         <Header />
         <Component {...pageProps} />
       </SessionProvider>
