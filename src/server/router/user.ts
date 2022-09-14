@@ -105,6 +105,56 @@ export const protectedRouter = createProtectedRouter()
         },
       });
     },
-  }).mutation("addFavourites", {
-    const 
   })
+  .mutation("addFavourites", {
+    input: z.object({
+      id: z.string(),
+      action: z.boolean(),
+    }),
+    async resolve({ ctx, input }) {
+      const data = await ctx.prisma.estate.findFirst({
+        where: {
+          id: input.id,
+        },
+        select: {
+          favouritesId: true,
+        },
+      });
+      const filteredData = data?.favouritesId.map((f) => ({ id: f.id })) || [];
+      await ctx.prisma.estate.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          favouritesId: {
+            set: input.action
+              ? filteredData.filter((f) => f.id !== ctx.session.user.id)
+              : [...filteredData, { id: ctx.session.user.id }],
+          },
+        },
+      });
+    },
+    // async resolve({ ctx, input }) {
+    //   const data = await ctx.prisma.user.findFirst({
+    //     where: {
+    //       id: ctx.session.user.id,
+    //     },
+    //     select: {
+    //       Favourite: true,
+    //     },
+    //   });
+    //   const filteredData = data?.Favourite.map((f) => ({ id: f.id })) || [];
+    //   await ctx.prisma.user.update({
+    //     where: {
+    //       id: ctx.session.user.id,
+    //     },
+    //     data: {
+    //       Favourite: {
+    //         set: input.action
+    //           ? filteredData.filter((f) => f.id !== input.id)
+    //           : [...filteredData, { id: input.id }],
+    //       },
+    //     },
+    //   });
+    // },
+  });

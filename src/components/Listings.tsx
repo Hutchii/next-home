@@ -195,30 +195,67 @@ const Pagination = ({
 type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
 
 const Items = ({
-  data,
-  isLoading,
+  // data,
+  // isLoading,
   children,
   count,
+  formData,
 }: {
-  data: ShowEstatesOutput[1] | undefined;
-  isLoading: boolean;
+  // data: ShowEstatesOutput[1] | undefined;
+  // isLoading: boolean;
   children: React.ReactElement;
   count: ShowEstatesOutput[0] | undefined;
 }) => {
   const { data: session } = useSession();
+  const qc = trpc.useContext();
+  const { data, isLoading } = trpc.useQuery(
+    ["estates.show-estates", formData],
+    {
+      // refetchOnReconnect: false,
+      // refetchOnWindowFocus: false,
+      // notifyOnChangeProps: "tracked",
+      // refetchOnMount: false,
+    }
+  );
+
+  const [estatesCount, estatesData] = data || [];
+  const mutation = trpc.useMutation("user.addFavourites", {
+    onMutate: async (inputData) => {
+      // await qc.cancelQuery(["estates.show-estates"]);
+      console.log(inputData.id);
+      // const previousEstates = qc.getQueryData(["estates.show-estates", data.id]);
+      const filteredData = estatesData?.map((f) =>
+        f.id === inputData.id
+          ? {
+              ...f,
+              favouritesId: [...f.favouritesId, { id: session?.user?.id }],
+            }
+          : f
+      );
+      console.log("TEST", filteredData);
+      // filteredData.id = variables.id;
+      // const filteredData2 = data?.filter(f => f.id !== variables.id);
+      // console.log('Render', filteredData);
+      qc.setQueryData(["estates.show-estates"], filteredData)
+    },
+  });
+
+  console.log("RE-RENDER", data);
   return (
     <section>
       <div className="spacer mt-20 md:flex md:items-center md:justify-between">
         <p className="mb-2.5 text-sm text-blue-800 md:mb-0">
-          <span className="text-md font-medium text-blue-500">{count}</span>{" "}
+          <span className="text-md font-medium text-blue-500">
+            {estatesCount}
+          </span>{" "}
           results
         </p>
         {children}
       </div>
       <div className="sm:spacer grid-container mt-10">
         {!isLoading &&
-          data &&
-          data.map((item) => {
+          estatesData &&
+          estatesData.map((item) => {
             return (
               <div
                 className="relative rounded-3xl bg-white shadow-small"
@@ -231,11 +268,23 @@ const Items = ({
                   width={484}
                   height={280}
                 />
-                {session && (
-                  <div className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-grey-400">
-                    <Heart className=" h-8 w-8" />
-                  </div>
-                )}
+                <button
+                  className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-grey-400/80"
+                  onClick={() => {
+                    mutation.mutate({
+                      id: item.id,
+                      action: item.favouritesId[0]?.id === session?.user?.id,
+                    });
+                  }}
+                >
+                  <Heart
+                    className={`h-8 w-8  ${
+                      item.favouritesId[0]?.id === session?.user?.id
+                        ? "fill-red-500"
+                        : ""
+                    }`}
+                  />
+                </button>
                 <div className="flex flex-col gap-1.5 px-6 pt-4 pb-8 sm:px-8">
                   <p className="flex items-center gap-2 text-xs uppercase text-grey-500">
                     {item.type}
@@ -304,17 +353,17 @@ const initialData = {
 const Listings = () => {
   const [formData, setFormData] = useState(initialData);
   // const context = trpc.useContext();
-  const { data, isLoading } = trpc.useQuery(
-    ["estates.show-estates", formData],
-    {
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      notifyOnChangeProps: "tracked",
-      refetchOnMount: false,
-    }
-  );
+  // const { data, isLoading } = trpc.useQuery(
+  //   ["estates.show-estates", formData],
+  //   {
+  //     refetchOnReconnect: false,
+  //     refetchOnWindowFocus: false,
+  //     notifyOnChangeProps: "tracked",
+  //     refetchOnMount: false,
+  //   }
+  // );
 
-  const [estatesCount, estatesData] = data || [];
+  // const [estatesCount, estatesData] = data || [];
   const {
     handleSubmit,
     formState: { errors },
@@ -332,13 +381,13 @@ const Listings = () => {
     })
   );
 
-  const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
-  const pagination = usePagination({
-    totalCount: estatesCount,
-    pageSize: ITEMS_PER_PAGE,
-    currentPage,
-  });
-  console.log(errors);
+  // const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
+  // const pagination = usePagination({
+  //   totalCount: estatesCount,
+  //   pageSize: ITEMS_PER_PAGE,
+  //   currentPage,
+  // });
+  // console.log(errors);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -468,7 +517,8 @@ const Listings = () => {
           </div>
         </form>
       </section>
-      <Items data={estatesData} isLoading={isLoading} count={estatesCount}>
+      {/* data={estatesData} isLoading={isLoading} count={estatesCount} */}
+      <Items formData={formData}>
         <Select
           options={options.sort}
           name="Sort"
@@ -485,7 +535,7 @@ const Listings = () => {
           <Home className="mr-2" aria-hidden="true" />
         </Select>
       </Items>
-      <div className="mt-10 flex h-10 items-center justify-center gap-1.5 font-medium">
+      {/* <div className="mt-10 flex h-10 items-center justify-center gap-1.5 font-medium">
         {!pagination || pagination.length < 2 ? null : (
           <Pagination
             onArrowClick={(sign = 0) =>
@@ -502,7 +552,7 @@ const Listings = () => {
             currentPage={currentPage}
           />
         )}
-      </div>
+      </div> */}
     </>
   );
 };

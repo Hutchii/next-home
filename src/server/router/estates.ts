@@ -38,6 +38,21 @@ export const publicRouter = createRouter().query("show-estates", {
         orderBy: { [input.sort.value]: input.sort.order },
         skip: input.skip,
         take: input.take,
+        select: {
+          id: true,
+          name: true,
+          Image: true,
+          for: true,
+          type: true,
+          city: true,
+          address: true,
+          price: true,
+          area: true,
+          rooms: true,
+          favouritesId: {
+            select: { id: true },
+          },
+        },
       }),
     ]);
     return getEstates;

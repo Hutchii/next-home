@@ -55,7 +55,7 @@ model User {
     description   String?
     phone         String?
     Estate        Estate[]  @relation("Estate")
-    Favourite     Estate[]  @relation("Favourite")
+    Favourite     Estate[]
 }
 
 model VerificationToken {
@@ -79,7 +79,6 @@ model Estate {
     rooms        Int
     body         String   @db.Text
     userId       String
-    favouritesId String[]
+    favouritesId User[]
     user         User     @relation(fields: [userId], references: [id], name: "Estate")
-    favourite    User     @relation(fields: [favouritesId], references: [id], name: "Favourite")
 }
