@@ -34,7 +34,14 @@ const Select = ({
   children: React.ReactElement;
   multiple?: boolean;
   onChange: (v: OptionsSort) => void;
-  value: any;
+  value:
+    | string
+    | string[]
+    | {
+        name: string;
+        value: string;
+        order: string;
+      };
 }) => {
   const isValueObject = typeof value === "object" && !Array.isArray(value);
   return (
@@ -62,8 +69,8 @@ const Select = ({
                 ? value.name
                 : !value || value.length === 0
                 ? "Select an option"
-                : multiple
-                ? value?.map((item: OptionsSort) => item).join(", ")
+                : Array.isArray(value)
+                ? value.map((item) => item).join(", ")
                 : value}
             </span>
             <DropdownArrow aria-hidden="true" className="ml-auto mr-4" />
@@ -134,67 +141,6 @@ Input.displayName = "Input";
 
 const ITEMS_PER_PAGE = 3;
 
-const Pagination = ({
-  onArrowClick,
-  onPageClick,
-  lastPage,
-  paginationRange,
-  currentPage,
-}: {
-  onArrowClick: (sign: number) => void;
-  onPageClick: (page: number) => void;
-  lastPage: boolean | undefined;
-  paginationRange: (number | string)[];
-  currentPage: number;
-}) => {
-  return (
-    <>
-      <button
-        className="pagination-arrow mr-1 disabled:opacity-40"
-        onClick={() => onArrowClick(-ITEMS_PER_PAGE)}
-        disabled={currentPage < 2}
-      >
-        <Arrow className="fill-white" />
-      </button>
-      {paginationRange.map((pageNumber, i) => {
-        if (typeof pageNumber === "string") {
-          return (
-            <div
-              className="pointer-events-none w-11 select-none text-center text-sm text-blue-500"
-              key={pageNumber + i}
-            >
-              &#8230;
-            </div>
-          );
-        }
-        return (
-          <div
-            className={`pagination-page cursor-pointer select-none ${
-              pageNumber === currentPage &&
-              "border-blue-800 bg-blue-800 text-white"
-            }`}
-            key={pageNumber}
-            onClick={() =>
-              onPageClick(pageNumber * ITEMS_PER_PAGE - ITEMS_PER_PAGE)
-            }
-          >
-            {pageNumber}
-          </div>
-        );
-      })}
-      <button
-        className="pagination-arrow ml-1 disabled:opacity-40"
-        onClick={() => onArrowClick(+ITEMS_PER_PAGE)}
-        disabled={lastPage}
-      >
-        <Arrow className="rotate-180 fill-white" />
-      </button>
-    </>
-  );
-};
-
-// type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
-
 const initialForm = {
   for: ["Sell", "Rent"],
   city: "",
@@ -208,14 +154,75 @@ const initialForm = {
   sort: { name: "Largest Price", value: "price", order: "desc" },
 };
 
+type initialForm = typeof initialForm;
+
+const Pagination = ({
+  lastPage,
+  paginationRange,
+  currentPage,
+  setForm,
+}: {
+  lastPage: boolean | undefined;
+  paginationRange: (number | string)[];
+  currentPage: number;
+  setForm: React.Dispatch<React.SetStateAction<initialForm>>;
+}) => {
+  const onClickHandler = (value: number, page?: boolean) =>
+    setForm((d: initialForm) => ({
+      ...d,
+      skip: page ? value : d.skip + value,
+    }));
+  return (
+    <>
+      <button
+        className="pagination-arrow mr-1 disabled:opacity-40"
+        onClick={() => onClickHandler(-ITEMS_PER_PAGE)}
+        disabled={currentPage < 2}
+      >
+        <Arrow className="fill-white" />
+      </button>
+      {paginationRange.map((page, i) =>
+        typeof page === "string" ? (
+          <div
+            className="pointer-events-none w-11 select-none text-center text-sm text-blue-500"
+            key={page + i}
+          >
+            &#8230;
+          </div>
+        ) : (
+          <div
+            className={`pagination-page cursor-pointer select-none ${
+              page === currentPage && "border-blue-800 bg-blue-800 text-white"
+            }`}
+            key={page}
+            onClick={() =>
+              onClickHandler(page * ITEMS_PER_PAGE - ITEMS_PER_PAGE, true)
+            }
+          >
+            {page}
+          </div>
+        )
+      )}
+      <button
+        className="pagination-arrow ml-1 disabled:opacity-40"
+        onClick={() => onClickHandler(ITEMS_PER_PAGE)}
+        disabled={lastPage}
+      >
+        <Arrow className="rotate-180 fill-white" />
+      </button>
+    </>
+  );
+};
+// type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
+
 const Items = ({
   children,
   form,
   setForm,
 }: {
   children: React.ReactElement;
-  form: typeof initialForm;
-  setForm: React.Dispatch<React.SetStateAction<typeof initialForm>>;
+  form: initialForm;
+  setForm: React.Dispatch<React.SetStateAction<initialForm>>;
 }) => {
   const { data: session } = useSession();
   const qc = trpc.useContext();
@@ -360,17 +367,9 @@ const Items = ({
           })}
       </div>
       <div className="mt-10 flex h-10 items-center justify-center gap-1.5 font-medium">
-        {!pagination || pagination.length < 2 ? null : (
+        {!pagination || pagination.length < 2 || !estatesCount ? null : (
           <Pagination
-            onArrowClick={(sign = 0) =>
-              setForm((d: typeof initialForm) => ({
-                ...d,
-                skip: d.skip + sign,
-              }))
-            }
-            onPageClick={(page: number) =>
-              setForm((d: typeof initialForm) => ({ ...d, skip: page }))
-            }
+            setForm={setForm}
             lastPage={form.skip + ITEMS_PER_PAGE >= estatesCount}
             paginationRange={pagination}
             currentPage={currentPage}
@@ -389,14 +388,14 @@ const Listings = () => {
     control,
     register,
     reset,
-  } = useForm<typeof initialForm>();
+  } = useForm<initialForm>();
   const onSubmit = handleSubmit((data) =>
-    setForm({
+    setForm((d) => ({
       ...data,
-      skip: initialForm.skip,
-      take: initialForm.take,
-      sort: initialForm.sort,
-    })
+      skip: d.skip,
+      take: d.take,
+      sort: d.sort,
+    }))
   );
   return (
     <>
