@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import Image from "next/future/image";
 import Head from "next/head";
 import Listings from "../components/Listings";
-// import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
   return (

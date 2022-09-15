@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { inferQueryOutput, trpc } from "../utils/trpc";
+import { trpc } from "../utils/trpc";
 import { Listbox } from "@headlessui/react";
 import { options, Options, OptionsSort } from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
@@ -195,7 +195,7 @@ const Pagination = ({
 
 // type ShowEstatesOutput = inferQueryOutput<"estates.show-estates">;
 
-const initialData = {
+const initialForm = {
   for: ["Sell", "Rent"],
   city: "",
   type: "",
@@ -210,30 +210,29 @@ const initialData = {
 
 const Items = ({
   children,
-  formData,
+  form,
+  setForm,
 }: {
   children: React.ReactElement;
-  formData: typeof initialData;
+  form: typeof initialForm;
+  setForm: React.Dispatch<React.SetStateAction<typeof initialForm>>;
 }) => {
   const { data: session } = useSession();
   const qc = trpc.useContext();
-  const { data, isLoading } = trpc.useQuery(
-    ["estates.show-estates", formData],
-    {
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      notifyOnChangeProps: "tracked",
-      refetchOnMount: false,
-    }
-  );
+  const { data, isLoading } = trpc.useQuery(["estates.show-estates", form], {
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    notifyOnChangeProps: "tracked",
+    refetchOnMount: false,
+  });
   const [estatesCount, estatesData] = data || [];
   const mutation = trpc.useMutation("user.addFavourites", {
     onMutate: async (input) => {
-      await qc.cancelQuery(["estates.show-estates", formData]);
-      const prevData = qc.getQueryData(["estates.show-estates", formData]);
+      await qc.cancelQuery(["estates.show-estates", form]);
+      const prevData = qc.getQueryData(["estates.show-estates", form]);
       const sessionId = session?.user?.id;
       if (prevData) {
-        qc.setQueryData(["estates.show-estates", formData], () => {
+        qc.setQueryData(["estates.show-estates", form], () => {
           const filteredData = prevData[1]?.map((f) =>
             f.id === input.id && sessionId
               ? {
@@ -251,12 +250,20 @@ const Items = ({
     },
     onError: (err, newTodo, context) => {
       if (context?.prevData)
-        qc.setQueryData(["estates.show-estates", formData], context?.prevData);
+        qc.setQueryData(["estates.show-estates", form], context?.prevData);
     },
     onSettled: () => {
-      qc.invalidateQueries(["estates.show-estates", formData]);
+      qc.invalidateQueries(["estates.show-estates", form]);
     },
   });
+
+  const currentPage = form.skip / ITEMS_PER_PAGE + 1;
+  const pagination = usePagination({
+    totalCount: estatesCount,
+    pageSize: ITEMS_PER_PAGE,
+    currentPage,
+  });
+
   return (
     <section>
       <div className="spacer mt-20 md:flex md:items-center md:justify-between">
@@ -352,48 +359,45 @@ const Items = ({
             );
           })}
       </div>
+      <div className="mt-10 flex h-10 items-center justify-center gap-1.5 font-medium">
+        {!pagination || pagination.length < 2 ? null : (
+          <Pagination
+            onArrowClick={(sign = 0) =>
+              setForm((d: typeof initialForm) => ({
+                ...d,
+                skip: d.skip + sign,
+              }))
+            }
+            onPageClick={(page: number) =>
+              setForm((d: typeof initialForm) => ({ ...d, skip: page }))
+            }
+            lastPage={form.skip + ITEMS_PER_PAGE >= estatesCount}
+            paginationRange={pagination}
+            currentPage={currentPage}
+          />
+        )}
+      </div>
     </section>
   );
 };
 
 const Listings = () => {
-  const [formData, setFormData] = useState(initialData);
-  // const context = trpc.useContext();
-  // const { data, isLoading } = trpc.useQuery(
-  //   ["estates.show-estates", formData],
-  //   {
-  //     refetchOnReconnect: false,
-  //     refetchOnWindowFocus: false,
-  //     notifyOnChangeProps: "tracked",
-  //     refetchOnMount: false,
-  //   }
-  // );
-
-  // const [estatesCount, estatesData] = data || [];
+  const [form, setForm] = useState(initialForm);
   const {
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
     control,
     register,
     reset,
-  } = useForm<typeof initialData>();
-
+  } = useForm<typeof initialForm>();
   const onSubmit = handleSubmit((data) =>
-    setFormData({
+    setForm({
       ...data,
-      skip: initialData.skip,
-      take: initialData.take,
-      sort: initialData.sort,
+      skip: initialForm.skip,
+      take: initialForm.take,
+      sort: initialForm.sort,
     })
   );
-
-  // const currentPage = formData.skip / ITEMS_PER_PAGE + 1;
-  // const pagination = usePagination({
-  //   totalCount: estatesCount,
-  //   pageSize: ITEMS_PER_PAGE,
-  //   currentPage,
-  // });
-  // console.log(errors);
   return (
     <>
       <section className="mx-auto -mt-20 sm:px-6 lg:-mt-10 lg:px-10 xl:w-4/5 xl:px-0 4xl:w-[65vw] 4xl:max-w-[1530px]">
@@ -514,7 +518,7 @@ const Listings = () => {
               type="button"
               onClick={() => {
                 reset();
-                setFormData(initialData);
+                setForm(initialForm);
               }}
             >
               Clear
@@ -523,17 +527,16 @@ const Listings = () => {
           </div>
         </form>
       </section>
-      {/* data={estatesData} isLoading={isLoading} count={estatesCount} */}
-      <Items formData={formData}>
+      <Items form={form} setForm={setForm}>
         <Select
           options={options.sort}
           name="Sort"
-          value={formData.sort}
+          value={form.sort}
           onChange={(sort: OptionsSort) =>
-            setFormData({
-              ...formData,
-              skip: initialData.skip,
-              take: initialData.take,
+            setForm({
+              ...form,
+              skip: initialForm.skip,
+              take: initialForm.take,
               sort: { ...sort, value: sort.value, order: sort.order },
             })
           }
@@ -541,24 +544,6 @@ const Listings = () => {
           <Home className="mr-2" aria-hidden="true" />
         </Select>
       </Items>
-      {/* <div className="mt-10 flex h-10 items-center justify-center gap-1.5 font-medium">
-        {!pagination || pagination.length < 2 ? null : (
-          <Pagination
-            onArrowClick={(sign = 0) =>
-              setFormData((d) => ({
-                ...formData,
-                skip: d.skip + sign,
-              }))
-            }
-            onPageClick={(page: number) =>
-              setFormData({ ...formData, skip: page })
-            }
-            lastPage={formData.skip + ITEMS_PER_PAGE >= estatesCount}
-            paginationRange={pagination}
-            currentPage={currentPage}
-          />
-        )}
-      </div> */}
     </>
   );
 };
