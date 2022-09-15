@@ -5,6 +5,8 @@ import { options, Options, OptionsSort } from "../data/selectOptions";
 import { Controller, useForm } from "react-hook-form";
 import Image from "next/future/image";
 import { usePagination } from "../hooks/usePagination";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 import Tag from "../../public/svg/tag.svg";
 import DropdownArrow from "../../public/svg/dropdownArrow.svg";
@@ -17,23 +19,19 @@ import Clear from "../../public/svg/x.svg";
 import Door from "../../public/svg/door.svg";
 import Arrow from "../../public/svg/arrow.svg";
 import Heart from "../../public/svg/heart.svg";
-import { env } from "../env/client.mjs";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
+import { awsURL } from "../utils/awsURL";
 
 const Select = ({
   options,
   name,
   children,
-  multiple,
   onChange,
   value,
 }: {
   options: Options[] | OptionsSort[];
   name: string;
   children: React.ReactElement;
-  multiple?: boolean;
-  onChange: (v: OptionsSort) => void;
+  onChange: (value: OptionsSort) => void;
   value:
     | string
     | string[]
@@ -53,7 +51,7 @@ const Select = ({
       value={value}
       onChange={onChange}
       name={name}
-      multiple={multiple}
+      multiple={Array.isArray(value)}
     >
       {({ open }) => (
         <>
@@ -270,7 +268,6 @@ const Items = ({
     pageSize: ITEMS_PER_PAGE,
     currentPage,
   });
-
   return (
     <section>
       <div className="spacer mt-20 md:flex md:items-center md:justify-between">
@@ -294,7 +291,7 @@ const Items = ({
               >
                 <Image
                   className="w-full rounded-t-3xl"
-                  src={`${env.NEXT_PUBLIC_AWS}/${item.Image}`}
+                  src={awsURL(item.Image[0])}
                   alt="Estate"
                   width={484}
                   height={280}
@@ -418,7 +415,6 @@ const Listings = () => {
                   name={name}
                   onChange={onChange}
                   value={value}
-                  multiple={true}
                 >
                   <Tag className="mr-2" aria-hidden="true" />
                 </Select>
