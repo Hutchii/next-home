@@ -1,8 +1,8 @@
 import { Layout } from ".";
 import { trpc } from "../../utils/trpc";
 
-const MyListings = () => {
-  const { data, isLoading } = trpc.useQuery(["user.getEstates"]);
+const MyFavourites = () => {
+  const { data, isLoading } = trpc.useQuery(["user.getFavourites"]);
   if (isLoading) return <div>Loading...</div>;
   return (
     <Layout>
@@ -14,4 +14,4 @@ const MyListings = () => {
     </Layout>
   );
 };
-export default MyListings;
+export default MyFavourites;
