@@ -2,9 +2,9 @@ import { createProtectedRouter } from "./create-protected-router";
 import * as AWS from "aws-sdk";
 import { randomUUID } from "crypto";
 import { env } from "./../../env/server.mjs";
-
 import { z } from "zod";
-import { text } from "stream/consumers";
+import * as trpc from "@trpc/server";
+
 const s3 = new AWS.S3({
   region: "eu-central-1",
   signatureVersion: "v4",
@@ -26,7 +26,29 @@ export const protectedRouter = createProtectedRouter()
       rooms: z.string(),
       body: z.string(),
     }),
+
     async resolve({ ctx, input }) {
+      const estatesCount = await ctx.prisma.user.findMany({
+        where: {
+          id: ctx.session.user.id,
+        },
+        select: {
+          Estate: true,
+        },
+      });
+      console.log("COUNT", estatesCount);
+      if (ctx.session.user.role === "USER" && estatesCount[0]?.Estate.length >= 5) {
+        throw new trpc.TRPCError({
+          code: "FORBIDDEN",
+          message: "You can`t add more than 5 estates!",
+        });
+      }
+      if (ctx.session.user.role === "PREMIUM" && estatesCount[0]?.Estate.length >= 10) {
+        throw new trpc.TRPCError({
+          code: "FORBIDDEN",
+          message: "You can`t add more than 10 estates!",
+        });
+      }
       const key = randomUUID();
       await ctx.prisma.estate.create({
         data: {

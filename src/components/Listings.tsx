@@ -19,6 +19,7 @@ import Arrow from "../../public/svg/arrow.svg";
 import Heart from "../../public/svg/heart.svg";
 import { env } from "../env/client.mjs";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const Select = ({
   options,
@@ -272,7 +273,8 @@ const Items = ({
           estatesData &&
           estatesData.map((item) => {
             return (
-              <div
+              <Link
+                href={`/estate/${item.name}`}
                 className="relative rounded-3xl bg-white shadow-small"
                 key={item.id}
               >
@@ -346,7 +348,7 @@ const Items = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
       </div>
